@@ -1,7 +1,7 @@
 {
-  "name": "Unforged Smithing",
+  "name": "Unforged",
   "short_name": "Unforged",
-  "description": "Gear crafting calculator for the Unforged system.",
+  "description": "Gear crafting, stats and character sheet for the Unforged system.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
