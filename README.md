@@ -10,6 +10,7 @@ account and no server.
 - [Stats](#stats): calculator, actions, passives, character sheet, damage, skills
 - [Saving, sharing and moving data](#saving-sharing-and-moving-data)
 - [Plugins](#plugins) and the [Plugin builder](#plugin-builder)
+- [Custom Stats content in plugins](#custom-stats-content-in-plugins)
 - [Installing and offline use](#installing-and-offline-use)
 - [Files in this repository](#files-in-this-repository)
 
@@ -198,8 +199,8 @@ hidden because phones cannot use files in a helpful way; there, use **Save** and
 
 ## Plugins
 
-A plugin adds your own content to the built-in rules: weapon types, armor types, shield types, the four kinds of mods, and
-races. Open a profile and choose **Plugins** on the home page. There you can **Import plugin** (a `.json` file), paste plugin
+A plugin adds your own content to the built-in rules: weapon types, armor types, shield types, the four kinds of mods, races,
+active actions, passives and purchasable fighting styles. Open a profile and choose **Plugins** on the home page. There you can **Import plugin** (a `.json` file), paste plugin
 text, **Download example**, turn a plugin on or off, export it, edit it in the builder, or remove it.
 
 - Adding, removing or switching a plugin **reloads the page**.
@@ -211,7 +212,7 @@ text, **Download example**, turn a plugin on or off, export it, edit it in the b
 
 ### Plugin builder
 
-Plugins page > **Plugin builder** makes a plugin with forms instead of editing JSON. It covers everything a plugin can hold:
+Plugins page > **Plugin builder** provides forms for crafting rules and races, plus a JSON definition editor for Stats content. It covers:
 
 - **Details:** name (required), version and description, with a summary of what is inside.
 - **Weapon types:** speed, base damage, base pierce, base strength requirement, damage type, hands and the 4 x 2 abilities.
@@ -222,6 +223,7 @@ Plugins page > **Plugin builder** makes a plugin with forms instead of editing J
   buttons and a live preview of the finished text; which value feeds each calculator effect; armor mods can be stackable; bow,
   armor and shield mods can be limited to chosen bows, armor types (including your own) or shield types.
 - **Races:** tick only the stats that differ; the rest use the default.
+- **Active actions, passives and purchasables:** define custom Stats entries, including optional race restrictions. These use the same rule fields as the built-in Stats data; see [Custom Stats content in plugins](#custom-stats-content-in-plugins).
 - **JSON:** the file as it will be saved. You can edit it and press **Apply to builder**, or copy it.
 
 Entries can start blank or **from a built-in one** (a copy to change). Everything is checked live with the same rules the importer
@@ -233,7 +235,7 @@ on the device.
 ### Plugin file format
 
 Open a profile, then **Plugins** on the home page. A plugin is a `.json` file that adds custom
-weapon types, armor types, shield types, mods and races. **Download example** gives a file to start from.
+weapon types, armor types, shield types, mods, races, active actions, passives and purchasable styles. **Download example** gives a file to start from.
 
 ```json
 {
@@ -259,6 +261,62 @@ weapon types, armor types, shield types, mods and races. **Download example** gi
   Plugins page lists what was skipped.
 - Plugins are stored on the device, apply to every profile, and reload the page when changed.
   If a bad plugin ever stops the app from working, open it with `?noplugins` on the address to start without plugins.
+
+## Custom Stats content in plugins
+
+Plugins can extend the Stats rules as well as crafting rules. The visual Plugin builder includes tabs for **Active actions**, **Passives**, and **Purchasables**. These entries are exported in the plugin JSON and are validated on import. Existing plugins remain valid; all new sections are optional.
+
+### Active actions
+
+An active action is added to the purchased-actions list. Its `costs` array defines the purchase cost for each level, in thousands of gold (`k`). A one-item array makes it a single-purchase action. `races` is optional; when supplied, the action is available only to characters whose selected race is listed.
+
+```json
+{
+  "actions": [{
+    "name": "Example Active",
+    "roll": "Melee roll",
+    "speed": "3 speed",
+    "text": "Describe what this action does.",
+    "costs": [5],
+    "races": ["Example Race"]
+  }]
+}
+```
+
+### Passives
+
+A passive uses `maxLevel` and a `cost` object with `base` and `perLevel` values, both in `k`. An optional `effect` object can calculate a displayed value using `base + perLevel * level`; its `text` uses `{value}` as the placeholder. The optional `races` list restricts the passive to those races.
+
+```json
+{
+  "passives": [{
+    "name": "Example Passive",
+    "text": "Describe the passive.",
+    "maxLevel": 3,
+    "cost": { "base": 2, "perLevel": 1 },
+    "effect": { "base": 5, "perLevel": 2, "text": "+{value}% effect" },
+    "races": ["Example Race"]
+  }]
+}
+```
+
+### Purchasable styles
+
+Purchasable styles use a `costs` array in `k`, a description in `text`, and a `rules` list. They follow the existing one-style-at-a-time purchase rule. An optional `races` list limits which characters can purchase the style.
+
+```json
+{
+  "styles": [{
+    "name": "Example Style",
+    "text": "Describe the style.",
+    "costs": [10],
+    "rules": ["Describe a rule or benefit."],
+    "races": ["Example Race"]
+  }]
+}
+```
+
+Omit `races`, or use an empty list, to make an entry available to every race. Race names must match a race in the app or an enabled plugin. Names and keys are unique across the combined rules.
 
 ## Installing and offline use
 

@@ -1295,14 +1295,14 @@ function pickStorage() {
 const Profiles = createProfileStore(pickStorage());
 
 // ---------- Plugins ----------
-// A plugin is a .json file that adds weapon types, armor types, shield types, mods and races to the built-in rules.
+// A plugin is a JSON file that extends crafting rules, races, active actions, passives and purchasable styles.
 // Plugins never replace anything: an entry whose name is already taken is skipped and reported.
 // Rules are read once when the page starts, so adding, removing or switching a plugin reloads the page.
 const PLUGIN_KEY = 'unforged-plugins-v1';
 const PLUGIN_SECTIONS = [
   ['weaponTypes', 'weapon type'], ['armorTypes', 'armor type'], ['shieldTypes', 'shield type'],
   ['weaponMods', 'weapon mod'], ['bowMods', 'bow mod'], ['armorMods', 'armor mod'], ['shieldMods', 'shield mod'],
-  ['races', 'race'],
+  ['races', 'race'], ['actions', 'active action'], ['passives', 'passive'], ['styles', 'purchasable style'],
 ];
 const PLUGIN_ENTRY_LIMIT = 100;
 // Mod effects name which number of a mod level (0 = the first {0} value) feeds the calculation.
@@ -1446,6 +1446,45 @@ function cleanPlugin(obj, baseStart) {
     }
     return { start };
   }
+  // Stats entries use the same structures as the built-in rules. Race restrictions are optional.
+  // The importer normalizes every field before any plugin data reaches the live rules.
+  function raceScope(x, where) {
+    if (x.races === undefined) return {};
+    if (!Array.isArray(x.races) || x.races.length > 50 || x.races.some((r) => typeof r !== 'string' || !r.trim())) {
+      bad(`${where}: races must be a list of race names`); return {};
+    }
+    return { races: x.races.map((r) => r.trim()) };
+  }
+  function statAction(x, where) {
+    if (!Array.isArray(x.costs) || !x.costs.length || x.costs.length > 30) bad(`${where}: costs needs 1 to 30 numbers`);
+    const costs = (Array.isArray(x.costs) ? x.costs : []).slice(0, 30).map((v, i) => num(v, `${where}: cost ${i + 1}`, 0, 1000000));
+    return { key: `plugin-${String(x.name).toLowerCase().replace(/[^a-z0-9]+/g, '-')}`, roll: str(x.roll, `${where}: roll`, 80, false), speed: str(x.speed, `${where}: speed`, 80, false), text: str(x.text, `${where}: text`, 2000, false), costs, ...raceScope(x, where) };
+  }
+  function statPassive(x, where) {
+    const cost = x.cost && typeof x.cost === 'object' ? x.cost : {};
+    const maxLevel = num(x.maxLevel, `${where}: maxLevel`, 1, 30, true);
+    const out = { key: `plugin-${String(x.name).toLowerCase().replace(/[^a-z0-9]+/g, '-')}`, text: str(x.text, `${where}: text`, 2000, false), maxLevel, cost: { base: num(cost.base, `${where}: cost.base`, 0, 1000000), perLevel: num(cost.perLevel, `${where}: cost.perLevel`, 0, 1000000) }, ...raceScope(x, where) };
+    if (x.effect !== undefined) {
+      if (!x.effect || typeof x.effect !== 'object') bad(`${where}: effect must be an object`);
+      else out.effect = { base: num(x.effect.base, `${where}: effect.base`, -1000000, 1000000), perLevel: num(x.effect.perLevel, `${where}: effect.perLevel`, -1000000, 1000000), text: str(x.effect.text, `${where}: effect.text`, 300, false) };
+    }
+    return out;
+  }
+  function statStyle(x, where) {
+    if (!Array.isArray(x.costs) || !x.costs.length || x.costs.length > 30) bad(`${where}: costs needs 1 to 30 numbers`);
+    const costs = (Array.isArray(x.costs) ? x.costs : []).slice(0, 30).map((v, i) => num(v, `${where}: cost ${i + 1}`, 0, 1000000));
+    const rules = Array.isArray(x.rules) ? x.rules.map((v, i) => str(v, `${where}: rule ${i + 1}`, 2000, false)) : (bad(`${where}: rules must be a list`), []);
+    const groups = Array.isArray(x.groups) ? x.groups.slice(0, 30).map((g, gi) => {
+      const at = `${where}: group ${gi + 1}`;
+      if (!g || typeof g !== 'object' || !Array.isArray(g.actions)) { bad(`${at} must have a title, level and actions list`); return { title: '', level: 1, actions: [] }; }
+      const actions = g.actions.slice(0, 100).map((a, ai) => ({ name: str(a && a.name, `${at}: action ${ai + 1} name`, 80, true), text: str(a && a.text, `${at}: action ${ai + 1} text`, 2000, false), ...(a && a.cost !== undefined ? { cost: str(a.cost, `${at}: action ${ai + 1} cost`, 80, false) } : {}), ...(a && a.bonus !== undefined ? { bonus: str(a.bonus, `${at}: action ${ai + 1} bonus`, 1000, false) } : {}) }));
+      return { title: str(g.title, `${at}: title`, 100, false), level: num(g.level, `${at}: level`, 1, 30, true), actions };
+    }) : (bad(`${where}: groups must be a list`), []);
+    const out = { key: `plugin-${String(x.name).toLowerCase().replace(/[^a-z0-9]+/g, '-')}`, text: str(x.text, `${where}: text`, 2000, false), costs, rules, groups, ...raceScope(x, where) };
+    if (Array.isArray(x.levelText)) out.levelText = x.levelText.slice(0, 30).map((l, i) => ({ level: num(l.level, `${where}: levelText ${i + 1} level`, 1, 30, true), text: str(l.text, `${where}: levelText ${i + 1} text`, 1000, false) }));
+    if (Array.isArray(x.extra)) out.extra = x.extra.slice(0, 20).map((v, i) => ({ title: str(v.title, `${where}: extra ${i + 1} title`, 100, false), paragraphs: Array.isArray(v.paragraphs) ? v.paragraphs.slice(0, 30).map((t, j) => str(t, `${where}: extra ${i + 1} paragraph ${j + 1}`, 2000, false)) : [] }));
+    return out;
+  }
   const out2 = {
     weaponTypes: each('weaponTypes', 'Weapon type', weapon),
     armorTypes: each('armorTypes', 'Armor type', armorType),
@@ -1455,9 +1494,12 @@ function cleanPlugin(obj, baseStart) {
     armorMods: each('armorMods', 'Armor mod', mod('armorMods', 'types')),
     shieldMods: each('shieldMods', 'Shield mod', mod('shieldMods', 'shields')),
     races: each('races', 'Race', race),
+    actions: each('actions', 'Active action', statAction),
+    passives: each('passives', 'Passive', statPassive),
+    styles: each('styles', 'Purchasable style', statStyle),
   };
   Object.assign(out, out2);
-  if (!errors.length && !PLUGIN_SECTIONS.some(([k]) => out[k].length)) errors.push('This plugin adds nothing. Add at least one weapon type, armor type, shield type, mod or race.');
+  if (!errors.length && !PLUGIN_SECTIONS.some(([k]) => out[k].length)) errors.push('This plugin adds nothing. Add at least one supported rule, race, active action, passive or purchasable style.');
   return errors.length ? { errors } : { plugin: out };
 }
 
@@ -1477,6 +1519,11 @@ function applyPlugins(smithyBase, statsBase, plugins) {
       for (const item of pl[key]) {
         if (taken(list, item.name)) { skipped.push(`${what} ${item.name}: the name is already used`); continue; }
         const copyOf = clone(item);
+        if (Array.isArray(copyOf.races) && copyOf.races.length) {
+          const knownRaces = stats.races.map((r) => r.name.toLowerCase());
+          const missingRaces = copyOf.races.filter((r) => !knownRaces.includes(r.toLowerCase()));
+          if (missingRaces.length) { skipped.push(`${what} ${item.name}: ${missingRaces.join(', ')} is not an available race`); continue; }
+        }
         if (refKey && copyOf[refKey]) {
           const missing = copyOf[refKey].filter((n) => !refNames().includes(n));
           if (missing.length) { skipped.push(`${what} ${item.name}: ${missing.join(', ')} is not available`); continue; }
@@ -1493,6 +1540,9 @@ function applyPlugins(smithyBase, statsBase, plugins) {
     put('armorMods', smithy.armorMods, 'Armor mod', 'types', () => smithy.armor.types.map((t) => t.name));
     put('shieldMods', smithy.shieldMods, 'Shield mod', 'shields', () => smithy.shield.types.map((t) => t.name));
     put('races', stats.races, 'Race');
+    put('actions', stats.actions, 'Active action');
+    put('passives', stats.passives, 'Passive');
+    put('styles', stats.styles, 'Purchasable style');
     report[pl.id] = { added, skipped };
   }
   return { smithy, stats, report };
@@ -1544,7 +1594,7 @@ function createPluginStore(storage, clean) {
   };
 }
 
-// A small file people can edit to make their own plugin. "_help" is ignored when importing.
+// A complete example plugin that can be edited or imported as a starting point.
 function examplePlugin() {
   return {
     app: 'unforged-smithing',
@@ -4306,7 +4356,9 @@ function cleanPurchases(rules, saved) {
 // The one fighting style the character owns: { item, level } or null.
 function ownedStyle(rules, purchases) {
   const clean = cleanPurchases(rules, purchases);
-  const item = rules.styles.find((x) => clean.styles[x.key]);
+  const savedStats = Profiles.getStats();
+  const race = savedStats && savedStats.race ? savedStats.race : rules.races[0].name;
+  const item = rules.styles.find((x) => clean.styles[x.key] && (!Array.isArray(x.races) || !x.races.length || x.races.includes(race)));
   return item ? { item, level: clean.styles[item.key] } : null;
 }
 
@@ -4333,6 +4385,9 @@ function effectLine(item, level) {
 
 function startPurchases(rules) {
   const $ = (id) => document.getElementById(id);
+  const currentRace = () => { const saved = Profiles.getStats(); return saved && saved.race ? saved.race : (rules.races[0] && rules.races[0].name); };
+  // Race-limited purchases stay in the saved profile, but are shown only for eligible characters.
+  const availableForRace = (item) => !Array.isArray(item.races) || !item.races.length || item.races.includes(currentRace());
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const gold = (x) => Number(x).toLocaleString('en-US');
   let owned = cleanPurchases(rules, Profiles.getPurchases());
@@ -4392,7 +4447,7 @@ function startPurchases(rules) {
       const list = $(groups[group].listId);
       const focus = document.activeElement && list.contains(document.activeElement) ? document.activeElement : null;
       const keep = focus ? { key: focus.dataset.key, dir: focus.dataset.dir } : null;
-      list.innerHTML = rules[group].map((item) => cardHtml(group, item)).join('');
+      list.innerHTML = rules[group].filter(availableForRace).map((item) => cardHtml(group, item)).join('');
       if (keep) {
         const again = [...list.querySelectorAll('[data-key]')].find((el) => el.dataset.key === keep.key && el.dataset.dir === keep.dir && !el.disabled);
         if (again) again.focus();
@@ -4953,7 +5008,9 @@ function startSheet(rules, tools) {
 
   function passivesHtml() {
     const owned = cleanPurchases(rules, Profiles.getPurchases()).passives;
-    const list = rules.passives.filter((p) => owned[p.key]);
+    const savedStats = Profiles.getStats();
+    const race = savedStats && savedStats.race ? savedStats.race : rules.races[0].name;
+    const list = rules.passives.filter((p) => owned[p.key] && (!Array.isArray(p.races) || !p.races.length || p.races.includes(race)));
     const body = list.length ? list.map((p) => {
       const lvl = owned[p.key];
       const max = maxLevelOf(p);
@@ -5256,7 +5313,9 @@ function startActions(rules, tools) {
     if (tab === 'style' && own) { root.innerHTML = styleHtml(own, q); return; }
     const pick = (list, fn = card) => list.filter((a) => matchesSearch(a, q)).map((a) => fn(a));
     const owned = cleanPurchases(rules, Profiles.getPurchases()).actions;
-    const bought = rules.actions.filter((a) => owned[a.key]);
+    const savedStats = Profiles.getStats();
+    const race = savedStats && savedStats.race ? savedStats.race : rules.races[0].name;
+    const bought = rules.actions.filter((a) => owned[a.key] && (!Array.isArray(a.races) || !a.races.length || a.races.includes(race)));
     const searching = q.trim() !== '';
     const levelTag = (a) => {
       const max = maxLevelOf(a);
@@ -5742,7 +5801,7 @@ function startStats(rules, tools) {
 return { startStats, statsGold, purchasesGold: profilePurchasesGold, profileStrength };
 })();
 // ---------- Plugin builder ----------
-// A form for making plugin files without writing JSON. It edits a draft (kept on this device),
+// The visual editor builds the same validated JSON format used by plugin import and export. It edits a draft (kept on this device),
 // checks it with the same cleanPlugin() the importer uses, and can download or install the result.
 // ctx: { $, esc, baseSmithy, baseStats, Plugins, download, goPlugins, afterInstall }
 function createPluginBuilder(ctx) {
@@ -5806,6 +5865,9 @@ function createPluginBuilder(ctx) {
     armorTypes: () => ({ armorMultiplier: '1', nerfMultiplier: '1', strengthChange: '0', heavyBdmg: false }),
     shieldTypes: () => ({ baseHp: '20', hpMetalDivisor: '5', weight: '2', incrementMultiplier: '1', strengthBase: '12', agilityDivisor: '20' }),
     races: () => ({ start: {} }),
+    actions: () => ({ definition: JSON.stringify({ roll: 'Melee roll', speed: '3 speed', text: '', costs: [5], races: [] }, null, 2) }),
+    passives: () => ({ definition: JSON.stringify({ text: '', maxLevel: 1, cost: { base: 3, perLevel: 0 }, races: [] }, null, 2) }),
+    styles: () => ({ definition: JSON.stringify({ text: '', costs: [10], rules: [], groups: [], races: [] }, null, 2) }),
   };
   for (const k of MOD_KEYS) BLANK[k] = () => ({ levels: [{ level: '1', text: '', values: [{ value: '1', kind: 'int' }] }], effects: {}, stackable: false, refs: [] });
   const blankEntry = (section) => ({ _id: newId(), name: '', ...BLANK[section]() });
@@ -5830,6 +5892,9 @@ function createPluginBuilder(ctx) {
         baseHp: S(x.baseHp), hpMetalDivisor: S(x.hpMetalDivisor), weight: S(x.weight), incrementMultiplier: S(x.incrementMultiplier),
         strengthBase: S(x.strengthBase), agilityDivisor: x.agilityDivisor === null ? null : S(x.agilityDivisor),
       });
+    } else if (['actions', 'passives', 'styles'].includes(section)) {
+      const copy = { ...x }; delete copy.name; delete copy.key;
+      e.definition = JSON.stringify(copy, null, 2);
     } else if (section === 'races') {
       e.start = {};
       if (x.start && typeof x.start === 'object') for (const s of statList) if (x.start[s.key] !== undefined && !(dropDefaults && String(x.start[s.key]) === String(baseStart[s.key]))) e.start[s.key] = S(x.start[s.key]);
@@ -5911,6 +5976,10 @@ function createPluginBuilder(ctx) {
         baseHp: N(e.baseHp), hpMetalDivisor: N(e.hpMetalDivisor), weight: N(e.weight), incrementMultiplier: N(e.incrementMultiplier),
         strengthBase: N(e.strengthBase), agilityDivisor: e.agilityDivisor === null ? null : N(e.agilityDivisor),
       });
+    } else if (['actions', 'passives', 'styles'].includes(section)) {
+      let definition = {};
+      try { definition = JSON.parse(e.definition || '{}'); } catch (err) { definition = {}; }
+      Object.assign(o, definition);
     } else if (section === 'races') {
       const start = {};
       for (const s of statList) if (e.start[s.key] !== undefined) start[s.key] = N(e.start[s.key]);
@@ -6086,6 +6155,7 @@ function createPluginBuilder(ctx) {
     if (section === 'armorTypes') return armorBody(e);
     if (section === 'shieldTypes') return shieldBody(e);
     if (section === 'races') return raceBody(e);
+    if (['actions', 'passives', 'styles'].includes(section)) return `<label class="pb-f"><span>Rule definition (JSON)</span><textarea rows="12" spellcheck="false" data-f="definition">${esc(e.definition || '{}')}</textarea>${hint('Edit the fields as JSON. The example shows the required structure; the races list may be omitted to make this available to everyone.')}</label>`;
     return modBody(section, e);
   }
   function card(section, e, i, count) {
