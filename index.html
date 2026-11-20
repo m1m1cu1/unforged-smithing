@@ -493,6 +493,60 @@ input[type="number"] { text-align: center; font-variant-numeric: tabular-nums; }
   #stats-screens.sbs > div[hidden] { display: none; }
 }
 
+
+/* ---- plugin builder ---- */
+.pb-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem 1rem; }
+.pb-head .panel-title { margin-bottom: 0.4rem; }
+.pb-toolbar { align-items: center; margin: 0.5rem 0; }
+.pb-pick { width: auto; max-width: 100%; min-height: 2.75rem; }
+.pb-tabs { margin: 0.5rem 0 0.9rem; border-bottom: 1px solid var(--line); }
+.pb-tabcount { display: inline-block; min-width: 1.2em; color: var(--muted); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.pb-tabbad { color: var(--danger); font-weight: 700; }
+.pb-body { display: flex; flex-direction: column; gap: 0.6rem; min-width: 0; }
+.pb-body textarea, .pb-panel textarea { font: inherit; color: var(--fg); background: var(--surface-2); border: 1px solid var(--line); border-radius: 0.35rem; padding: 0.5rem 0.6rem; width: 100%; min-width: 0; resize: vertical; }
+.pb-body #pb-json { font: 0.85rem/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.pb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.8rem; }
+.pb-f { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+.pb-f > span:first-child { font-size: 0.9rem; color: var(--muted); font-weight: 600; }
+.pb-f .note { font-size: 0.8rem; }
+.pb-grow { flex: 1 1 14rem; }
+.pb-inline { flex-direction: row; align-items: center; gap: 0.5rem; }
+.pb-inline select { width: auto; }
+.pb-check { display: flex; align-items: center; gap: 0.5rem; color: var(--fg); font-weight: 500; cursor: pointer; }
+.pb-check input { width: 1.2rem; height: 1.2rem; accent-color: var(--accent); flex: none; }
+.pb-sub { font-family: var(--font-head); font-size: 1.05rem; margin: 0.9rem 0 0.1rem; }
+.pb-cards { display: flex; flex-direction: column; gap: 0.6rem; }
+.pb-card { border: 1px solid var(--line); border-radius: 0.5rem; background: var(--bg); min-width: 0; }
+.pb-card > summary { display: flex; align-items: center; gap: 0.6rem; padding: 0.7rem 0.9rem; cursor: pointer; font-weight: 600; min-height: 2.75rem; }
+.pb-card[open] > summary { border-bottom: 1px solid var(--line); }
+.pb-card-title { overflow-wrap: anywhere; }
+.pb-badge { font-size: 0.75rem; font-weight: 700; color: var(--accent-fg); background: var(--danger); border-radius: 1rem; padding: 0.05rem 0.55rem; white-space: nowrap; }
+.pb-badge-warn { background: var(--steel); }
+.pb-card-body { display: flex; flex-direction: column; gap: 0.75rem; padding: 0.9rem; }
+.pb-card-actions { margin-top: 0.4rem; padding-top: 0.75rem; border-top: 1px solid var(--line); }
+.pb-warns { margin: 0; }
+.pb-abil, .pb-refs { border: 1px solid var(--line); border-radius: 0.4rem; margin: 0; padding: 0.5rem 0.75rem 0.75rem; display: flex; flex-direction: column; gap: 0.6rem; min-width: 0; }
+.pb-abil legend, .pb-refs legend { font-size: 0.9rem; color: var(--muted); font-weight: 600; padding: 0 0.3rem; }
+.pb-refs { flex-direction: row; flex-wrap: wrap; gap: 0.4rem 0.6rem; }
+.pb-refs legend { flex: none; }
+.pb-chip { display: inline-flex; align-items: center; gap: 0.4rem; border: 1px solid var(--line); border-radius: 2rem; padding: 0.3rem 0.8rem; background: var(--surface-2); color: var(--fg); font-weight: 500; cursor: pointer; }
+.pb-chip input { accent-color: var(--accent); }
+.pb-chip-bad { border-color: var(--danger); color: var(--danger); }
+.pb-level { border: 1px solid var(--line); border-radius: 0.4rem; padding: 0.7rem; display: flex; flex-direction: column; gap: 0.5rem; background: var(--surface); }
+.pb-level-top { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: flex-start; }
+.pb-level-top .pb-f:first-child { width: 6.5rem; flex: none; }
+.pb-preview { margin: 0; min-height: 1.2em; color: var(--steel); }
+.pb-values { display: flex; flex-direction: column; gap: 0.5rem; }
+.pb-value { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.5rem; }
+.pb-value .pb-f { width: 7rem; }
+.pb-value select { width: 7.5rem; }
+.pb-summary { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.pb-add { align-items: center; margin-top: 0.4rem; }
+.pb-stat { gap: 0.3rem; }
+.pb-bar { position: sticky; bottom: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; margin: 1rem -1.1rem -1.1rem; padding: 0.7rem 1.1rem; background: var(--surface); border-top: 1px solid var(--line); border-radius: 0 0 0.5rem 0.5rem; }
+@media (max-width: 40rem) { .pb-bar { position: static; } }
+.pb-status { flex: 1 1 12rem; font-size: 0.95rem; color: var(--muted); }
+.pb-status-bad { color: var(--danger); }
 </style>
 <meta name="theme-color" content="#e6e9ec" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#15181c" media="(prefers-color-scheme: dark)">
@@ -561,9 +615,10 @@ input[type="number"] { text-align: center; font-variant-numeric: tabular-nums; }
   <section id="view-plugins" hidden aria-labelledby="h-plugins">
     <div class="panel plugin-panel">
       <h2 id="h-plugins" class="panel-title">Plugins</h2>
-      <p class="note">A plugin is a file that adds custom weapon types, armor types, shield types, mods and races. Plugins are kept on this device and apply to every profile. Adding, removing or switching one reloads the page. Items saved with a plugin's type stay in your profile and work again when the plugin is on.</p>
+      <p class="note">A plugin is a file that adds custom weapon types, armor types, shield types, mods and races. Plugins are kept on this device and apply to every profile. Adding, removing or switching one reloads the page. Items saved with a plugin's type stay in your profile and work again when the plugin is on. The Plugin builder makes plugin files with forms, no file editing needed.</p>
       <div class="actions">
-        <button class="btn btn-primary file-btn" type="button" id="plugin-import">Import plugin</button>
+        <button class="btn btn-primary" type="button" id="plugin-build">Plugin builder</button>
+        <button class="btn file-btn" type="button" id="plugin-import">Import plugin</button>
         <input type="file" id="plugin-file" accept=".json,application/json" hidden aria-label="Choose a plugin file">
         <button class="btn file-btn" type="button" id="plugin-example">Download example</button>
       </div>
@@ -576,6 +631,37 @@ input[type="number"] { text-align: center; font-variant-numeric: tabular-nums; }
       <ul id="plugin-errors" class="plugin-errors" hidden></ul>
       <p id="plugin-safe" class="note" hidden>Safe mode: plugins are not loaded. Open the app without ?noplugins to load them again.</p>
       <div id="plugin-list" class="profile-list"></div>
+    </div>
+  </section>
+
+  <section id="view-builder" hidden aria-labelledby="h-builder">
+    <div class="panel pb-panel">
+      <div class="pb-head">
+        <h2 id="h-builder" class="panel-title">Plugin builder</h2>
+        <button class="btn btn-small" type="button" id="pb-back">Back to Plugins</button>
+      </div>
+      <p class="note">Build a plugin with forms instead of writing the file by hand. Everything a plugin can add is here: weapon, armor and shield types, all four kinds of mods, and races.</p>
+      <div class="actions pb-toolbar">
+        <button class="btn" type="button" id="pb-new">New plugin</button>
+        <button class="btn file-btn" type="button" id="pb-open">Open file</button>
+        <input type="file" id="pb-file" accept=".json,application/json" hidden aria-label="Choose a plugin file">
+        <select id="pb-installed-pick" class="pb-pick" aria-label="Edit an installed plugin"><option value="">Edit an installed plugin…</option></select>
+        <button class="btn" type="button" id="pb-example">Load example</button>
+      </div>
+      <div id="pb-ask" class="saved-confirm" hidden>
+        <span id="pb-ask-text"></span>
+        <button class="btn" type="button" id="pb-ask-yes">OK</button>
+        <button class="btn" type="button" id="pb-ask-no">Cancel</button>
+      </div>
+      <p id="pb-msg" class="note" role="status"></p>
+      <nav id="pb-tabs" class="tabs pb-tabs" aria-label="Parts of the plugin"></nav>
+      <div id="pb-body" class="pb-body"></div>
+      <div class="pb-bar">
+        <span id="pb-status" class="pb-status" role="status"></span>
+        <button class="btn btn-small" type="button" id="pb-problems" hidden>Show first problem</button>
+        <button class="btn file-btn" type="button" id="pb-download">Download file</button>
+        <button class="btn btn-primary" type="button" id="pb-install">Install plugin</button>
+      </div>
     </div>
   </section>
 
@@ -5655,6 +5741,744 @@ function startStats(rules, tools) {
 
 return { startStats, statsGold, purchasesGold: profilePurchasesGold, profileStrength };
 })();
+// ---------- Plugin builder ----------
+// A form for making plugin files without writing JSON. It edits a draft (kept on this device),
+// checks it with the same cleanPlugin() the importer uses, and can download or install the result.
+// ctx: { $, esc, baseSmithy, baseStats, Plugins, download, goPlugins, afterInstall }
+function createPluginBuilder(ctx) {
+  const { $, esc, baseSmithy, baseStats, Plugins, download } = ctx;
+  const baseStart = baseStats.races[0].start;
+  const statList = baseStats.stats;
+  const DRAFT_KEY = 'unforged-plugin-draft-v1';
+
+  const EFFECT_LABELS = {
+    speed: 'Speed (the value is subtracted from speed)', strength: 'Strength requirement (the value eases it)', throwRange: 'Throw range',
+    sweetRange: 'Sweet spot range', farRange: 'Far range', strengthHarder: 'Strength requirement (the value makes it harder)',
+    agility: 'Agility', armorMultiplier: 'Armor multiplier', strengthRequirement: 'Strength requirement', sneak: 'Sneak',
+    bdmgMultiplier: 'Base damage reduction multiplier', armor: 'Armor %',
+  };
+  const META = {
+    weaponTypes: {
+      title: 'Weapon types', label: 'Weapon type', one: 'weapon type', builtin: () => baseSmithy.weapons,
+      help: 'A new melee weapon for the Weapons crafter. Each weapon has 4 ability levels with 2 choices each.',
+    },
+    armorTypes: {
+      title: 'Armor types', label: 'Armor type', one: 'armor type', builtin: () => baseSmithy.armor.types,
+      help: 'The multipliers scale the armor and the agility/sneak nerf. Strength change moves the strength requirement.',
+    },
+    shieldTypes: {
+      title: 'Shield types', label: 'Shield type', one: 'shield type', builtin: () => baseSmithy.shield.types,
+      help: 'A new shield for the Shields crafter. Turn on "No agility nerf" for a shield that never slows the wearer.',
+    },
+    weaponMods: {
+      title: 'Weapon mods', label: 'Weapon mod', one: 'weapon mod', builtin: () => baseSmithy.mods,
+      help: 'A mod for melee weapons and arrows. Each level has a text; {0}, {1}… are filled from the level\'s values.',
+    },
+    bowMods: {
+      title: 'Bow mods', label: 'Bow mod', one: 'bow mod', builtin: () => baseSmithy.bowMods, ref: 'weapons',
+      help: 'A mod for bows. Choose bows below to limit it to those, or none for every bow.',
+    },
+    armorMods: {
+      title: 'Armor mods', label: 'Armor mod', one: 'armor mod', builtin: () => baseSmithy.armorMods, ref: 'types',
+      help: 'A mod for armor. Stackable mods can be added more than once. Choose armor types to limit it, or none for all.',
+    },
+    shieldMods: {
+      title: 'Shield mods', label: 'Shield mod', one: 'shield mod', builtin: () => baseSmithy.shieldMods, ref: 'shields',
+      help: 'A mod for shields. Choose shield types to limit it, or none for all.',
+    },
+    races: {
+      title: 'Races', label: 'Race', one: 'race', builtin: () => baseStats.races,
+      help: 'Tick only the stats that differ. Stats you leave out start at the first built-in race\'s value.',
+    },
+  };
+  const SECTION_KEYS = PLUGIN_SECTIONS.map(([k]) => k);
+  const MOD_KEYS = ['weaponMods', 'bowMods', 'armorMods', 'shieldMods'];
+
+  // ---------- the draft ----------
+  let uid = 1;
+  const newId = () => uid++;
+  const S = (v) => (v === undefined || v === null ? '' : String(v));
+  const emptyState = () => ({ name: '', version: '1.0', description: '', data: Object.fromEntries(SECTION_KEYS.map((k) => [k, []])) });
+
+  const blankAbilities = () => [0, 1, 2, 3].map(() => [{ text: '' }, { text: '' }]);
+  const BLANK = {
+    weaponTypes: () => ({ speed: '3', baseDamage: '1.5', basePierce: '40', strengthBase: '15', damageType: 'PRC', hands: '1', abilities: blankAbilities() }),
+    armorTypes: () => ({ armorMultiplier: '1', nerfMultiplier: '1', strengthChange: '0', heavyBdmg: false }),
+    shieldTypes: () => ({ baseHp: '20', hpMetalDivisor: '5', weight: '2', incrementMultiplier: '1', strengthBase: '12', agilityDivisor: '20' }),
+    races: () => ({ start: {} }),
+  };
+  for (const k of MOD_KEYS) BLANK[k] = () => ({ levels: [{ level: '1', text: '', values: [{ value: '1', kind: 'int' }] }], effects: {}, stackable: false, refs: [] });
+  const blankEntry = (section) => ({ _id: newId(), name: '', ...BLANK[section]() });
+
+  // Reads one entry from a file or a built-in rule, forgiving anything missing so a faulty file can still be fixed here.
+  function readEntry(section, x, dropDefaults) {
+    x = x && typeof x === 'object' && !Array.isArray(x) ? x : {};
+    const e = { _id: newId(), name: S(x.name).slice(0, 40) };
+    if (section === 'weaponTypes') {
+      Object.assign(e, {
+        speed: S(x.speed), baseDamage: S(x.baseDamage), basePierce: S(x.basePierce), strengthBase: S(x.strengthBase),
+        damageType: x.damageType === 'BLNT' ? 'BLNT' : 'PRC', hands: x.hands === 2 || x.hands === '2' ? '2' : '1',
+        abilities: [0, 1, 2, 3].map((i) => [0, 1].map((j) => {
+          const c = Array.isArray(x.abilities) && Array.isArray(x.abilities[i]) ? x.abilities[i][j] : null;
+          return { text: S(c && c.text) };
+        })),
+      });
+    } else if (section === 'armorTypes') {
+      Object.assign(e, { armorMultiplier: S(x.armorMultiplier), nerfMultiplier: S(x.nerfMultiplier), strengthChange: S(x.strengthChange), heavyBdmg: x.heavyBdmg === true });
+    } else if (section === 'shieldTypes') {
+      Object.assign(e, {
+        baseHp: S(x.baseHp), hpMetalDivisor: S(x.hpMetalDivisor), weight: S(x.weight), incrementMultiplier: S(x.incrementMultiplier),
+        strengthBase: S(x.strengthBase), agilityDivisor: x.agilityDivisor === null ? null : S(x.agilityDivisor),
+      });
+    } else if (section === 'races') {
+      e.start = {};
+      if (x.start && typeof x.start === 'object') for (const s of statList) if (x.start[s.key] !== undefined && !(dropDefaults && String(x.start[s.key]) === String(baseStart[s.key]))) e.start[s.key] = S(x.start[s.key]);
+    } else {
+      const refKey = META[section].ref;
+      e.levels = (Array.isArray(x.levels) ? x.levels : []).slice(0, 30).map((l) => {
+        l = l && typeof l === 'object' ? l : {};
+        return {
+          level: S(l.level), text: S(l.text),
+          values: (Array.isArray(l.values) ? l.values : []).slice(0, 4).map((v) => ({ value: S(v && v.value), kind: v && v.kind === 'pct' ? 'pct' : 'int' })),
+        };
+      });
+      e.effects = {};
+      if (x.effects && typeof x.effects === 'object') for (const k of PLUGIN_MOD_EFFECTS[section]) if (x.effects[k] !== undefined) e.effects[k] = S(x.effects[k]);
+      e.stackable = section === 'armorMods' && x.stackable === true;
+      e.refs = refKey && Array.isArray(x[refKey]) ? x[refKey].filter((n) => typeof n === 'string') : [];
+    }
+    return e;
+  }
+
+  // Reads a whole plugin file. Returns { state } or { error }.
+  function readFile(obj) {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return { error: 'This file is not a plugin.' };
+    if (obj.app !== undefined && obj.app !== 'unforged-smithing') return { error: 'This file was not made for this app.' };
+    if (obj.kind !== undefined && obj.kind !== 'plugin') return { error: `This is a ${S(obj.kind).slice(0, 30)} file, not a plugin.` };
+    const st = emptyState();
+    st.name = S(obj.name).slice(0, 40);
+    st.version = S(obj.version).slice(0, 20);
+    st.description = S(obj.description).slice(0, 300);
+    for (const k of SECTION_KEYS) if (Array.isArray(obj[k])) st.data[k] = obj[k].slice(0, PLUGIN_ENTRY_LIMIT).map((x) => readEntry(k, x, true));
+    return { state: st };
+  }
+
+  function loadDraft() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(DRAFT_KEY));
+      if (raw && raw.data) {
+        const st = emptyState();
+        st.name = S(raw.name); st.version = S(raw.version); st.description = S(raw.description);
+        for (const k of SECTION_KEYS) if (Array.isArray(raw.data[k])) st.data[k] = raw.data[k].map((x) => readEntry(k, META[k].ref && x ? { ...x, [META[k].ref]: x.refs } : x));
+        return st;
+      }
+    } catch (e) { /* no draft */ }
+    return null;
+  }
+  let draftTimer = 0;
+  function saveDraftNow() {
+    clearTimeout(draftTimer);
+    draftTimer = 0;
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); } catch (e) { /* the draft is optional */ }
+  }
+  function saveDraftSoon() {
+    clearTimeout(draftTimer);
+    draftTimer = setTimeout(saveDraftNow, 300);
+  }
+  // Leaving or reloading the page must not lose the last edit.
+  window.addEventListener('pagehide', () => { if (draftTimer) saveDraftNow(); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && draftTimer) saveDraftNow(); });
+
+  let state = loadDraft() || emptyState();
+  let tab = 'details';
+  const openIds = new Set();
+  const autoOpened = new Set();
+  const isEmpty = () => !state.name && SECTION_KEYS.every((k) => !state.data[k].length);
+
+  // ---------- turning the draft into a plugin file ----------
+  const N = (s) => (s === '' || s === undefined || s === null ? undefined : Number(s));
+  function entryOut(section, e) {
+    const o = { name: e.name };
+    if (section === 'weaponTypes') {
+      Object.assign(o, {
+        speed: N(e.speed), baseDamage: N(e.baseDamage), basePierce: N(e.basePierce), strengthBase: N(e.strengthBase),
+        damageType: e.damageType, hands: Number(e.hands), abilities: e.abilities.map((lv) => lv.map((c) => ({ text: c.text }))),
+      });
+    } else if (section === 'armorTypes') {
+      Object.assign(o, { armorMultiplier: N(e.armorMultiplier), nerfMultiplier: N(e.nerfMultiplier), strengthChange: N(e.strengthChange), heavyBdmg: !!e.heavyBdmg });
+    } else if (section === 'shieldTypes') {
+      Object.assign(o, {
+        baseHp: N(e.baseHp), hpMetalDivisor: N(e.hpMetalDivisor), weight: N(e.weight), incrementMultiplier: N(e.incrementMultiplier),
+        strengthBase: N(e.strengthBase), agilityDivisor: e.agilityDivisor === null ? null : N(e.agilityDivisor),
+      });
+    } else if (section === 'races') {
+      const start = {};
+      for (const s of statList) if (e.start[s.key] !== undefined) start[s.key] = N(e.start[s.key]);
+      if (Object.keys(start).length) o.start = start;
+    } else {
+      if (section === 'armorMods' && e.stackable) o.stackable = true;
+      const refKey = META[section].ref;
+      if (refKey && e.refs.length) o[refKey] = e.refs.slice();
+      const fx = {};
+      for (const k of PLUGIN_MOD_EFFECTS[section]) if (e.effects[k] !== undefined && e.effects[k] !== '') fx[k] = Number(e.effects[k]);
+      if (Object.keys(fx).length) o.effects = fx;
+      o.levels = e.levels.map((l) => ({ level: N(l.level), text: l.text, values: l.values.map((v) => ({ value: N(v.value), kind: v.kind })) }));
+    }
+    return o;
+  }
+  function toPlugin() {
+    const out = { app: 'unforged-smithing', kind: 'plugin', name: state.name, version: state.version, description: state.description };
+    for (const k of SECTION_KEYS) if (state.data[k].length) out[k] = state.data[k].map((e) => entryOut(k, e));
+    return out;
+  }
+
+  // ---------- checking ----------
+  const norm = (s) => String(s).replace(/\s+/g, ' ').trim();
+  let errors = [];
+  let cleaned = null;
+  function check() {
+    const res = cleanPlugin(JSON.parse(JSON.stringify(toPlugin())), baseStart);
+    errors = res.errors || [];
+    cleaned = res.plugin || null;
+  }
+  function entryErrors(section, i, e) {
+    const label = META[section].label;
+    const named = `${label} ${norm(e.name)}:`;
+    const unnamed = `${label} ${i + 1} `;
+    return errors.filter((m) => (norm(e.name) && m.startsWith(named)) || m.startsWith(unnamed));
+  }
+  function sectionErrorCount(section) {
+    if (!META[section]) return section === 'details' ? metaErrors().length : 0;
+    const label = META[section].label;
+    return errors.filter((m) => m.startsWith(`${label} `) || m.startsWith(`${section}:`)).length;
+  }
+  const metaErrors = () => errors.filter((m) => /^(Plugin name|Version|Description)/.test(m) || m.startsWith('This '));
+
+  // Names that already exist: built in, or from another installed plugin.
+  function takenNames(section) {
+    const map = new Map();
+    for (const b of META[section].builtin()) map.set(b.name.toLowerCase(), 'the app');
+    for (const p of Plugins.list()) {
+      if (norm(p.name).toLowerCase() === norm(state.name).toLowerCase()) continue;
+      for (const x of p[section] || []) if (!map.has(x.name.toLowerCase())) map.set(x.name.toLowerCase(), `the plugin ${p.name}`);
+    }
+    return map;
+  }
+  // What a mod can be limited to: built-in names plus this plugin's own types.
+  function refChoices(section) {
+    const own = (k) => state.data[k].map((e) => norm(e.name)).filter(Boolean);
+    if (section === 'bowMods') return baseSmithy.bows.map((b) => b.name);
+    if (section === 'armorMods') return [...baseSmithy.armor.types.map((t) => t.name), ...own('armorTypes')];
+    return [...baseSmithy.shield.types.map((t) => t.name), ...own('shieldTypes')];
+  }
+  function entryWarnings(section, e) {
+    const w = [];
+    const nm = norm(e.name);
+    if (nm) {
+      const who = takenNames(section).get(nm.toLowerCase());
+      if (who) w.push(`The name "${nm}" is already used by ${who}, so this entry would be skipped.`);
+    }
+    if (e.refs) {
+      const have = refChoices(section).map((x) => x.toLowerCase());
+      const missing = e.refs.filter((r) => !have.includes(r.toLowerCase()));
+      if (missing.length) w.push(`${missing.join(', ')} does not exist, so this mod would be skipped.`);
+    }
+    return w;
+  }
+
+  // ---------- form pieces ----------
+  const hint = (t) => (t ? `<span class="note">${t}</span>` : '');
+  const num = (f, label, v, h, extra = '') => `<label class="pb-f"><span>${label}</span><input type="number" inputmode="decimal" step="any" data-f="${f}" value="${esc(v)}" ${extra}>${hint(h)}</label>`;
+  const txt = (f, label, v, max, h, extra = '') => `<label class="pb-f"><span>${label}</span><input type="text" autocomplete="off" maxlength="${max}" data-f="${f}" value="${esc(v)}" ${extra}>${hint(h)}</label>`;
+  const sel = (f, label, v, opts, h) => `<label class="pb-f"><span>${label}</span><select data-f="${f}">${opts.map(([val, t]) => `<option value="${esc(val)}"${String(val) === String(v) ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>${hint(h)}</label>`;
+  const check1 = (f, label, on, extra = '') => `<label class="pb-check"><input type="checkbox" data-f="${f}"${on ? ' checked' : ''} ${extra}> <span>${label}</span></label>`;
+
+  function weaponBody(e) {
+    return `<div class="pb-grid">
+      ${num('speed', 'Speed', e.speed, 'Whole number, 0 to 20')}
+      ${num('baseDamage', 'Base damage', e.baseDamage, '0.01 to 1000')}
+      ${num('basePierce', 'Base pierce', e.basePierce, '0 to 1000')}
+      ${num('strengthBase', 'Base strength requirement', e.strengthBase, '0 to 100')}
+      ${sel('damageType', 'Damage type', e.damageType, [['PRC', 'Piercing (PRC)'], ['BLNT', 'Blunt (BLNT)']])}
+      ${sel('hands', 'Hands', e.hands, [['1', 'One-handed'], ['2', 'Two-handed']])}
+    </div>
+    <h4 class="pb-sub">Abilities</h4>
+    <p class="note">4 levels, each with 2 choices to pick from.</p>
+    ${e.abilities.map((lv, li) => `<fieldset class="pb-abil"><legend>Ability level ${li + 1}</legend>
+      ${lv.map((c, ci) => `<label class="pb-f"><span>Choice ${ci + 1}</span><textarea rows="2" maxlength="300" data-f="abilities.${li}.${ci}.text" spellcheck="true">${esc(c.text)}</textarea></label>`).join('')}
+    </fieldset>`).join('')}`;
+  }
+  function armorBody(e) {
+    return `<div class="pb-grid">
+      ${num('armorMultiplier', 'Armor multiplier', e.armorMultiplier, '0 to 10. Scales the armor.')}
+      ${num('nerfMultiplier', 'Nerf multiplier', e.nerfMultiplier, '0 to 10. Scales the agility and sneak nerf.')}
+      ${num('strengthChange', 'Strength change', e.strengthChange, '-50 to 50. Moves the strength requirement.')}
+    </div>
+    ${check1('heavyBdmg', 'Heavy base damage reduction (as heavy armor has)', e.heavyBdmg)}`;
+  }
+  function shieldBody(e) {
+    const none = e.agilityDivisor === null;
+    return `<div class="pb-grid">
+      ${num('baseHp', 'Base HP', e.baseHp, '0.01 to 100000')}
+      ${num('hpMetalDivisor', 'HP metal divisor', e.hpMetalDivisor, '0.01 to 1000')}
+      ${num('weight', 'Weight', e.weight, '0 to 100')}
+      ${num('incrementMultiplier', 'Increment multiplier', e.incrementMultiplier, '0 to 10')}
+      ${num('strengthBase', 'Base strength requirement', e.strengthBase, '0 to 100')}
+      ${num('agilityDivisor', 'Agility divisor', none ? '' : e.agilityDivisor, '0.01 to 1000', none ? 'disabled' : '')}
+    </div>
+    <label class="pb-check"><input type="checkbox" data-act="noAgility"${none ? ' checked' : ''}> <span>No agility nerf</span></label>`;
+  }
+  function raceBody(e) {
+    return `<div class="pb-grid">${statList.map((s) => {
+      const on = e.start[s.key] !== undefined;
+      return `<div class="pb-f pb-stat">
+        <label class="pb-check"><input type="checkbox" data-stat="${s.key}"${on ? ' checked' : ''}> <span>${esc(s.name)}</span></label>
+        <input type="number" inputmode="numeric" step="1" data-f="start.${s.key}" value="${esc(on ? e.start[s.key] : baseStart[s.key])}" aria-label="${esc(s.name)} start"${on ? '' : ' disabled'}>
+        ${hint(on ? '-1000 to 24' : `Default ${baseStart[s.key]}`)}
+      </div>`;
+    }).join('')}</div>`;
+  }
+  function modBody(section, e) {
+    const m = META[section];
+    const minVals = e.levels.length ? Math.min(...e.levels.map((l) => l.values.length)) : 0;
+    const effects = PLUGIN_MOD_EFFECTS[section];
+    const refKey = m.ref;
+    const refNames = refKey ? refChoices(section) : [];
+    const have = refNames.map((x) => x.toLowerCase());
+    const extra = refKey ? e.refs.filter((r) => !have.includes(r.toLowerCase())) : [];
+    return `${section === 'armorMods' ? check1('stackable', 'Stackable (can be added more than once)', e.stackable) : ''}
+    ${refKey ? `<fieldset class="pb-refs"><legend>Limit to ${refKey === 'weapons' ? 'bows' : refKey === 'types' ? 'armor types' : 'shield types'} (none ticked: all)</legend>
+      ${[...refNames, ...extra].map((n) => `<label class="pb-chip${extra.includes(n) ? ' pb-chip-bad' : ''}"><input type="checkbox" data-ref="${esc(n)}"${e.refs.includes(n) ? ' checked' : ''}> <span>${esc(n)}</span></label>`).join('')}
+    </fieldset>` : ''}
+    <h4 class="pb-sub">Levels</h4>
+    <p class="note">Each level has a text. Write {0}, {1}… where a value goes. "Whole" values are rounded when a metal scales them, "Percent" values keep decimals.</p>
+    ${e.levels.map((l, li) => `<div class="pb-level" data-li="${li}">
+      <div class="pb-level-top">
+        ${num(`levels.${li}.level`, 'Level', l.level, '1 to 1000, whole')}
+        <label class="pb-f pb-grow"><span>Text</span><input type="text" autocomplete="off" maxlength="200" data-f="levels.${li}.text" value="${esc(l.text)}" placeholder="e.g. Decreases weapon speed by {0}"></label>
+      </div>
+      <p class="pb-preview note" data-preview="${li}"></p>
+      <div class="pb-values">${l.values.map((v, vi) => `<div class="pb-value">
+        <label class="pb-f"><span>{${vi}}</span><input type="number" inputmode="decimal" step="any" data-f="levels.${li}.values.${vi}.value" value="${esc(v.value)}" aria-label="Value ${vi} of level ${li + 1}"></label>
+        <select data-f="levels.${li}.values.${vi}.kind" aria-label="Kind of value ${vi}"><option value="int"${v.kind === 'int' ? ' selected' : ''}>Whole</option><option value="pct"${v.kind === 'pct' ? ' selected' : ''}>Percent</option></select>
+        <button class="btn btn-small" type="button" data-act="insert" data-li="${li}" data-vi="${vi}" title="Put {${vi}} into the text">Insert {${vi}}</button>
+        <button class="btn btn-small" type="button" data-act="delValue" data-li="${li}" data-vi="${vi}" aria-label="Remove value ${vi}">&times;</button>
+      </div>`).join('')}</div>
+      <div class="actions">
+        <button class="btn btn-small" type="button" data-act="addValue" data-li="${li}"${l.values.length >= 4 ? ' disabled' : ''}>Add value</button>
+        <button class="btn btn-small" type="button" data-act="delLevel" data-li="${li}"${e.levels.length <= 1 ? ' disabled' : ''}>Remove level</button>
+      </div>
+    </div>`).join('')}
+    <div class="actions"><button class="btn btn-small" type="button" data-act="addLevel"${e.levels.length >= 30 ? ' disabled' : ''}>Add level</button></div>
+    <h4 class="pb-sub">What the calculator uses</h4>
+    <p class="note">Optional. Pick which value feeds each part of the calculation. Without any, this is a text-only mod.${minVals === 0 ? ' Add a value to every level first.' : ''}</p>
+    <div class="pb-grid">${effects.map((k) => {
+      const cur = e.effects[k] === undefined ? '' : e.effects[k];
+      const top = Math.max(minVals, cur === '' ? 0 : Number(cur) + 1);
+      const opts = [['', 'Not used']];
+      for (let i = 0; i < top; i++) opts.push([String(i), `Value {${i}}`]);
+      return sel(`effects.${k}`, EFFECT_LABELS[k], cur, opts);
+    }).join('')}</div>`;
+  }
+
+  function cardBody(section, e) {
+    if (section === 'weaponTypes') return weaponBody(e);
+    if (section === 'armorTypes') return armorBody(e);
+    if (section === 'shieldTypes') return shieldBody(e);
+    if (section === 'races') return raceBody(e);
+    return modBody(section, e);
+  }
+  function card(section, e, i, count) {
+    const m = META[section];
+    return `<details class="pb-card" data-id="${e._id}" data-s="${section}" data-i="${i}"${openIds.has(e._id) ? ' open' : ''}>
+      <summary><span class="pb-card-title" data-title>${esc(e.name || `New ${m.one}`)}</span><span class="pb-badge" data-badge hidden></span></summary>
+      <div class="pb-card-body">
+        <ul class="plugin-errors" data-errs hidden></ul>
+        <ul class="plugin-skips pb-warns" data-warns hidden></ul>
+        ${txt('name', 'Name', e.name, 40, 'Must be new. No quote marks, < or >.')}
+        ${cardBody(section, e)}
+        <div class="actions pb-card-actions">
+          <button class="btn btn-small" type="button" data-act="clone">Duplicate</button>
+          <button class="btn btn-small" type="button" data-act="up"${i === 0 ? ' disabled' : ''}>Move up</button>
+          <button class="btn btn-small" type="button" data-act="down"${i === count - 1 ? ' disabled' : ''}>Move down</button>
+          <button class="btn btn-small btn-remove" type="button" data-act="remove">Remove</button>
+        </div>
+      </div>
+    </details>`;
+  }
+
+  function sectionView(section) {
+    const m = META[section];
+    const list = state.data[section];
+    const builtins = m.builtin();
+    // A lone entry starts open: a closed card would only be an extra tap.
+    if (list.length === 1 && !autoOpened.has(list[0]._id)) { autoOpened.add(list[0]._id); openIds.add(list[0]._id); }
+    return `<p class="note">${esc(m.help)}</p>
+      <p class="note">Names must be new: built-in names (${builtins.slice(0, 6).map((b) => esc(b.name)).join(', ')}${builtins.length > 6 ? '…' : ''}) cannot be reused.</p>
+      <div class="pb-cards">${list.length ? list.map((e, i) => card(section, e, i, list.length)).join('') : `<p class="note">No ${esc(m.one)}s yet.</p>`}</div>
+      <div class="actions pb-add">
+        <label class="pb-f pb-inline"><span>Start from</span><select id="pb-template" aria-label="Start from">
+          <option value="">A blank ${esc(m.one)}</option>
+          ${builtins.map((b, i) => `<option value="${i}">${esc(b.name)} (built in)</option>`).join('')}
+        </select></label>
+        <button class="btn btn-primary" type="button" data-act="add"${list.length >= PLUGIN_ENTRY_LIMIT ? ' disabled' : ''}>Add ${esc(m.one)}</button>
+      </div>`;
+  }
+
+  function detailsView() {
+    const inst = Plugins.list().find((p) => norm(p.name).toLowerCase() === norm(state.name).toLowerCase());
+    return `<div class="pb-grid">
+        ${txt('@name', 'Plugin name', state.name, 40, 'Required. Installing a plugin with the same name updates it.')}
+        ${txt('@version', 'Version', state.version, 20, 'Optional')}
+      </div>
+      <label class="pb-f"><span>Description</span><textarea rows="3" maxlength="300" data-f="@description">${esc(state.description)}</textarea>${hint('Optional, up to 300 characters')}</label>
+      <ul class="plugin-errors" id="pb-meta-errs" hidden></ul>
+      <h4 class="pb-sub">What is in it</h4>
+      <div class="pb-summary">${SECTION_KEYS.map((k) => `<button class="btn btn-small" type="button" data-go="${k}">${esc(META[k].title)}: <span data-count-of="${k}">${state.data[k].length}</span></button>`).join('')}</div>
+      <p class="note" id="pb-installed">${inst ? `A plugin named "${esc(inst.name)}" is already installed${inst.version ? ` (version ${esc(inst.version)})` : ''}. Installing updates it.` : 'Not installed yet.'}</p>
+      <p class="note">Your work is kept as a draft on this device while you build.</p>`;
+  }
+
+  function jsonView() {
+    return `<p class="note">The plugin file as it will be saved. You can also paste a plugin here and press Apply to edit it in the builder.</p>
+      <textarea id="pb-json" rows="18" spellcheck="false" aria-label="Plugin text">${esc(JSON.stringify(toPlugin(), null, 2))}</textarea>
+      <div class="actions">
+        <button class="btn btn-primary" type="button" data-act="applyJson">Apply to builder</button>
+        <button class="btn" type="button" data-act="copyJson">Copy</button>
+      </div>`;
+  }
+
+  // ---------- drawing ----------
+  const tabs = [['details', 'Details'], ...SECTION_KEYS.map((k) => [k, META[k].title]), ['json', 'JSON']];
+  function renderTabs() {
+    $('pb-tabs').innerHTML = tabs.map(([id, t]) => {
+      const n = id === 'details' || id === 'json' ? '' : ` <span class="pb-tabcount" data-tabcount="${id}">${state.data[id].length || ''}</span>`;
+      return `<button class="tab${id === tab ? ' tab-on' : ''}" type="button" data-tab="${id}"${id === tab ? ' aria-current="page"' : ''}>${t}${n}<span class="pb-tabbad" data-tabbad="${id}" hidden> !</span></button>`;
+    }).join('');
+  }
+  function renderBody() {
+    $('pb-body').innerHTML = tab === 'details' ? detailsView() : tab === 'json' ? jsonView() : sectionView(tab);
+    refresh();
+  }
+  function renderAll() { renderTabs(); renderBody(); }
+
+  // Updates everything that depends on the checks without redrawing the form (so typing keeps its focus).
+  function refresh() {
+    check();
+    // tab marks
+    $('pb-tabs').querySelectorAll('[data-tabcount]').forEach((el) => { const n = state.data[el.dataset.tabcount].length; el.textContent = n || ''; });
+    $('pb-tabs').querySelectorAll('[data-tabbad]').forEach((el) => { el.hidden = !(sectionErrorCount(el.dataset.tabbad) > 0); });
+    // cards
+    document.querySelectorAll('#pb-body .pb-card').forEach((d) => {
+      const section = d.dataset.s;
+      const i = Number(d.dataset.i);
+      const e = state.data[section][i];
+      if (!e) return;
+      const errs = entryErrors(section, i, e);
+      const warns = entryWarnings(section, e);
+      const ul = d.querySelector('[data-errs]');
+      ul.innerHTML = errs.map((m) => `<li>${esc(m)}</li>`).join('');
+      ul.hidden = !errs.length;
+      const wl = d.querySelector('[data-warns]');
+      wl.innerHTML = warns.map((m) => `<li>${esc(m)}</li>`).join('');
+      wl.hidden = !warns.length;
+      const b = d.querySelector('[data-badge]');
+      b.hidden = !errs.length && !warns.length;
+      b.textContent = errs.length ? `${errs.length} to fix` : 'Check';
+      b.classList.toggle('pb-badge-warn', !errs.length);
+      d.querySelector('[data-title]').textContent = e.name || `New ${META[section].one}`;
+      // text previews of mod levels
+      d.querySelectorAll('[data-preview]').forEach((p) => {
+        const l = e.levels && e.levels[Number(p.dataset.preview)];
+        if (!l) return;
+        p.textContent = l.text ? `Reads: ${l.text.replace(/\{(\d+)\}/g, (_, n) => (l.values[Number(n)] && l.values[Number(n)].value !== '' ? l.values[Number(n)].value : `{${n}}`))}` : '';
+      });
+    });
+    // details tab
+    const me = $('pb-meta-errs');
+    if (me) { const l = metaErrors(); me.innerHTML = l.map((m) => `<li>${esc(m)}</li>`).join(''); me.hidden = !l.length; }
+    document.querySelectorAll('[data-count-of]').forEach((el) => { el.textContent = state.data[el.dataset.countOf].length; });
+    // bottom bar
+    const bad = errors.length;
+    const counts = cleaned ? SECTION_KEYS.filter((k) => cleaned[k].length).map((k) => `${cleaned[k].length} ${META[k].one}${cleaned[k].length === 1 ? '' : 's'}`).join(', ') : '';
+    $('pb-status').textContent = bad ? `${bad} thing${bad === 1 ? '' : 's'} to fix before this can be saved.` : `Ready: ${counts}.`;
+    $('pb-status').classList.toggle('pb-status-bad', !!bad);
+    $('pb-download').disabled = !!bad;
+    $('pb-install').disabled = !!bad;
+    const inst = Plugins.list().some((p) => norm(p.name).toLowerCase() === norm(state.name).toLowerCase());
+    $('pb-install').textContent = inst ? 'Update installed plugin' : 'Install plugin';
+    $('pb-problems').hidden = !bad;
+    $('pb-problems').textContent = 'Show first problem';
+  }
+
+  function changed() { refresh(); saveDraftSoon(); }
+
+  // ---------- paths into an entry ----------
+  function setPath(obj, path, value) {
+    const parts = path.split('.');
+    let o = obj;
+    for (let i = 0; i < parts.length - 1; i++) o = o[parts[i]];
+    o[parts[parts.length - 1]] = value;
+  }
+  function entryOf(el) {
+    const d = el.closest('.pb-card');
+    return d ? { section: d.dataset.s, i: Number(d.dataset.i), e: state.data[d.dataset.s][Number(d.dataset.i)], d } : null;
+  }
+
+  // ---------- messages, questions ----------
+  const bmsg = (t) => { $('pb-msg').textContent = t; };
+  let askYes = null;
+  function ask(text, yesLabel, fn) {
+    $('pb-ask-text').textContent = text;
+    $('pb-ask-yes').textContent = yesLabel;
+    $('pb-ask').hidden = false;
+    askYes = fn;
+  }
+  $('pb-ask-yes').addEventListener('click', () => { $('pb-ask').hidden = true; const f = askYes; askYes = null; if (f) f(); });
+  $('pb-ask-no').addEventListener('click', () => { $('pb-ask').hidden = true; askYes = null; });
+
+  function setState(st, msg) {
+    state = st;
+    tab = 'details';
+    openIds.clear();
+    renderAll();
+    saveDraftSoon();
+    bmsg(msg || '');
+  }
+  function replaceWith(st, msg) {
+    if (isEmpty()) setState(st, msg);
+    else ask('Replace the plugin you are building with this one?', 'Replace', () => setState(st, msg));
+  }
+
+  // ---------- events ----------
+  $('pb-tabs').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-tab]');
+    if (!b) return;
+    tab = b.dataset.tab;
+    renderAll();
+  });
+
+  $('pb-body').addEventListener('toggle', (e) => {
+    const d = e.target.closest && e.target.closest('.pb-card');
+    if (!d) return;
+    const id = Number(d.dataset.id);
+    if (d.open) openIds.add(id); else openIds.delete(id);
+  }, true);
+
+  function onField(e) {
+    const el = e.target;
+    const stat = el.dataset && el.dataset.stat;
+    if (stat) {
+      const ctxE = entryOf(el);
+      const input = el.closest('.pb-stat').querySelector('input[type="number"]');
+      if (el.checked) { ctxE.e.start[stat] = String(baseStart[stat]); input.disabled = false; input.value = baseStart[stat]; } else { delete ctxE.e.start[stat]; input.disabled = true; input.value = baseStart[stat]; }
+      changed();
+      return;
+    }
+    if (el.dataset && el.dataset.ref !== undefined) {
+      const c = entryOf(el);
+      const n = el.dataset.ref;
+      c.e.refs = c.e.refs.filter((x) => x !== n);
+      if (el.checked) c.e.refs.push(n);
+      changed();
+      return;
+    }
+    if (el.dataset && el.dataset.act === 'noAgility') {
+      const c = entryOf(el);
+      c.e.agilityDivisor = el.checked ? null : '20';
+      const inp = c.d.querySelector('[data-f="agilityDivisor"]');
+      inp.disabled = el.checked;
+      inp.value = el.checked ? '' : '20';
+      changed();
+      return;
+    }
+    const f = el.dataset && el.dataset.f;
+    if (!f) return;
+    const val = el.type === 'checkbox' ? el.checked : el.value;
+    if (f.startsWith('@')) { state[f.slice(1)] = val; changed(); return; }
+    const c = entryOf(el);
+    if (!c) return;
+    if (f.startsWith('effects.')) {
+      const k = f.slice(8);
+      if (val === '') delete c.e.effects[k]; else c.e.effects[k] = val;
+    } else setPath(c.e, f, val);
+    // a changed name or type list can change the choices other mods offer
+    if (f === 'name' && (c.section === 'armorTypes' || c.section === 'shieldTypes')) { /* choices update when those tabs are opened */ }
+    changed();
+  }
+  $('pb-body').addEventListener('input', (e) => { if (e.target.tagName !== 'SELECT' && e.target.type !== 'checkbox') onField(e); });
+  $('pb-body').addEventListener('change', (e) => { if (e.target.tagName === 'SELECT' || e.target.type === 'checkbox') onField(e); });
+
+  const cloneEntry = (x) => ({ ...JSON.parse(JSON.stringify(x)), _id: newId() });
+  function copyName(section, name) {
+    const base = norm(name) || 'Copy';
+    const used = new Set(state.data[section].map((e) => norm(e.name).toLowerCase()));
+    for (const b of META[section].builtin()) used.add(b.name.toLowerCase());
+    let n = `${base} copy`;
+    for (let i = 2; used.has(n.toLowerCase()); i++) n = `${base} copy ${i}`;
+    return n.slice(0, 40);
+  }
+
+  let armed = null;
+  $('pb-body').addEventListener('click', async (ev) => {
+    const go = ev.target.closest('[data-go]');
+    if (go) { tab = go.dataset.go; renderAll(); return; }
+    const b = ev.target.closest('[data-act]');
+    if (!b || b.tagName === 'INPUT') return;
+    const act = b.dataset.act;
+    bmsg('');
+    if (act === 'applyJson') {
+      let obj;
+      try { obj = JSON.parse($('pb-json').value); } catch (e) { bmsg('That text is not valid JSON.'); return; }
+      const r = readFile(obj);
+      if (r.error) { bmsg(r.error); return; }
+      setState(r.state, 'Applied. Fix anything marked with ! before saving.');
+      tab = 'json'; renderAll();
+      return;
+    }
+    if (act === 'copyJson') {
+      const ta = $('pb-json');
+      try { await navigator.clipboard.writeText(ta.value); bmsg('Copied.'); } catch (e) { ta.select(); bmsg(document.execCommand && document.execCommand('copy') ? 'Copied.' : 'Select the text and copy it.'); }
+      return;
+    }
+    if (act === 'add') {
+      const section = tab;
+      const list = state.data[section];
+      if (list.length >= PLUGIN_ENTRY_LIMIT) return;
+      const t = $('pb-template').value;
+      let e;
+      if (t === '') e = blankEntry(section);
+      else {
+        const src = META[section].builtin()[Number(t)];
+        e = readEntry(section, JSON.parse(JSON.stringify(src)), true);
+        e.name = copyName(section, src.name);
+      }
+      list.push(e);
+      openIds.add(e._id);
+      renderBody();
+      saveDraftSoon();
+      const last = $('pb-body').querySelector('.pb-card:last-of-type');
+      if (last) { last.scrollIntoView({ block: 'nearest' }); const n = last.querySelector('[data-f="name"]'); if (n) n.focus({ preventScroll: true }); }
+      return;
+    }
+    const c = entryOf(b);
+    if (!c) return;
+    const { section, i, e } = c;
+    const list = state.data[section];
+    const li = Number(b.dataset.li);
+    const vi = Number(b.dataset.vi);
+    if (act === 'remove') {
+      if (armed !== b) {
+        armed = b; b.textContent = 'Tap again to remove';
+        setTimeout(() => { if (b.isConnected && armed === b) { armed = null; b.textContent = 'Remove'; } }, 4000);
+        return;
+      }
+      armed = null;
+      list.splice(i, 1);
+    } else if (act === 'clone') {
+      const copy = cloneEntry(e);
+      copy.name = copyName(section, e.name);
+      list.splice(i + 1, 0, copy);
+      openIds.add(copy._id);
+    } else if (act === 'up' && i > 0) { [list[i - 1], list[i]] = [list[i], list[i - 1]]; }
+    else if (act === 'down' && i < list.length - 1) { [list[i + 1], list[i]] = [list[i], list[i + 1]]; }
+    else if (act === 'addLevel') {
+      const last = e.levels[e.levels.length - 1];
+      const lvl = last ? { level: String((Number(last.level) || 0) + 1), text: last.text, values: last.values.map((v) => ({ ...v })) } : { level: '1', text: '', values: [{ value: '1', kind: 'int' }] };
+      e.levels.push(lvl);
+    } else if (act === 'delLevel') { e.levels.splice(li, 1); }
+    else if (act === 'addValue') { if (e.levels[li].values.length < 4) e.levels[li].values.push({ value: '1', kind: 'int' }); }
+    else if (act === 'delValue') { e.levels[li].values.splice(vi, 1); }
+    else if (act === 'insert') {
+      const inp = c.d.querySelector(`[data-f="levels.${li}.text"]`);
+      const tag = `{${vi}}`;
+      const at = inp.selectionStart === null || inp.selectionStart === undefined ? inp.value.length : inp.selectionStart;
+      const end = inp.selectionEnd === null || inp.selectionEnd === undefined ? at : inp.selectionEnd;
+      inp.value = (inp.value.slice(0, at) + tag + inp.value.slice(end)).slice(0, 200);
+      e.levels[li].text = inp.value;
+      inp.focus(); inp.setSelectionRange(at + tag.length, at + tag.length);
+      changed();
+      return;
+    } else return;
+    renderBody();
+    saveDraftSoon();
+  });
+
+  $('pb-problems').addEventListener('click', () => {
+    // go to the first tab that has a problem
+    const meta = metaErrors();
+    const firstSection = SECTION_KEYS.find((k) => sectionErrorCount(k) > 0);
+    tab = meta.length || !firstSection ? 'details' : firstSection;
+    renderAll();
+    if (firstSection && !meta.length) {
+      state.data[firstSection].forEach((e, i) => { if (entryErrors(firstSection, i, e).length) openIds.add(e._id); });
+      renderBody();
+      const bad = $('pb-body').querySelector('.pb-card[open] [data-errs]:not([hidden])');
+      if (bad) bad.scrollIntoView({ block: 'center' });
+    }
+  });
+
+  // ---------- toolbar ----------
+  $('pb-new').addEventListener('click', () => {
+    if (isEmpty()) { setState(emptyState(), 'Started a new plugin.'); return; }
+    ask('Start a new plugin? The one you are building will be discarded.', 'Start new', () => setState(emptyState(), 'Started a new plugin.'));
+  });
+  $('pb-open').addEventListener('click', () => $('pb-file').click());
+  $('pb-file').addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    if (file.size > 2000000) { bmsg('This file is too large to be a plugin.'); return; }
+    let obj;
+    try { obj = JSON.parse(await file.text()); } catch (err) { bmsg('That file is not valid JSON.'); return; }
+    const r = readFile(obj);
+    if (r.error) { bmsg(r.error); return; }
+    replaceWith(r.state, `Opened ${file.name}. Anything marked with ! needs fixing.`);
+  });
+  $('pb-example').addEventListener('click', () => {
+    const ex = examplePlugin();
+    delete ex._help;
+    replaceWith(readFile(ex).state, 'Loaded the example. Change the names and values to make it yours.');
+  });
+  $('pb-installed-pick').addEventListener('change', (e) => {
+    const id = e.target.value;
+    e.target.value = '';
+    const p = Plugins.list().find((x) => x.id === id);
+    if (!p) return;
+    const r = readFile(Plugins.exportData(id));
+    replaceWith(r.state, `Editing ${p.name}. Press Update installed plugin when you are done.`);
+  });
+  $('pb-back').addEventListener('click', () => ctx.goPlugins());
+  $('pb-download').addEventListener('click', () => {
+    check();
+    if (errors.length) return;
+    const fileName = `${norm(state.name).replace(/[\\/:*?"<>|]/g, '-')} plugin.json`;
+    download(fileName, toPlugin());
+    bmsg(`Downloaded ${fileName}.`);
+  });
+  $('pb-install').addEventListener('click', () => {
+    check();
+    if (errors.length) return;
+    const res = Plugins.add(JSON.parse(JSON.stringify(toPlugin())));
+    if (res.errors) { bmsg(res.errors[0]); return; }
+    saveDraftNow();
+    ctx.afterInstall(res);
+  });
+
+  function fillInstalledPick() {
+    const list = Plugins.list();
+    $('pb-installed-pick').innerHTML = `<option value="">Edit an installed plugin…</option>${list.map((p) => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('')}`;
+    $('pb-installed-pick').disabled = !list.length;
+  }
+
+  return {
+    onShow() { fillInstalledPick(); $('pb-ask').hidden = true; renderAll(); },
+    // Opens an installed plugin (or any plugin object) for editing.
+    edit(obj, note) { const r = readFile(obj); if (r.error) return; setState(r.state, note || ''); },
+    isEmpty,
+  };
+}
+
 // The page around the tools: profile screen, tool chooser, header buttons and text size.
 const TEXT_SIZES = [15, 16, 18, 20, 22, 24];
 
@@ -5679,7 +6503,7 @@ function startShell(baseSmithyRules, baseStatsRules) {
     } catch (e) { pluginProblem = `Plugins were not loaded because they could not be applied (${e && e.message ? e.message : 'unknown error'})`; }
   }
 
-  const VIEWS = ['profiles', 'home', 'smithy', 'stats', 'plugins'];
+  const VIEWS = ['profiles', 'home', 'smithy', 'stats', 'plugins', 'builder'];
   let view = 'profiles';
   let renamingId = null;
   let pendingImport = null;
@@ -5726,8 +6550,9 @@ function startShell(baseSmithyRules, baseStatsRules) {
     view = name;
     VIEWS.forEach((v) => { $(`view-${v}`).hidden = v !== name; });
     $('nav-profile').hidden = name === 'profiles';
-    $('nav-tools').hidden = !(name === 'smithy' || name === 'stats' || name === 'plugins');
+    $('nav-tools').hidden = !(name === 'smithy' || name === 'stats' || name === 'plugins' || name === 'builder');
     if (name === 'plugins') renderPlugins();
+    if (name === 'builder') builder.onShow();
     const cur = Profiles.current();
     $('nav-profile-name').textContent = cur.name;
     $('home-profile-name').textContent = cur.name;
@@ -5961,6 +6786,7 @@ function startShell(baseSmithyRules, baseStatsRules) {
             ${p.enabled && rep && rep.skipped.length ? `<ul class="plugin-skips">${rep.skipped.map((s) => `<li>Skipped ${esc(s)}</li>`).join('')}</ul>` : ''}
           </div>
           <div class="profile-buttons">
+            <button class="btn" type="button" data-act="edit">Edit in builder</button>
             <button class="btn" type="button" data-act="toggle">${p.enabled ? 'Turn off' : 'Turn on'}</button>
             <button class="btn file-btn" type="button" data-act="export">Export</button>
             <button class="btn btn-remove" type="button" data-act="remove">Remove</button>
@@ -6004,7 +6830,10 @@ function startShell(baseSmithyRules, baseStatsRules) {
     const p = Plugins.list().find((x) => x.id === id);
     if (!p) return;
     perr([]); pmsg('');
-    if (b.dataset.act === 'export') {
+    if (b.dataset.act === 'edit') {
+      builder.edit(Plugins.exportData(id), `Editing ${p.name}. Press Update installed plugin when you are done.`);
+      show('builder');
+    } else if (b.dataset.act === 'export') {
       const fileName = `${p.name.replace(/[\\/:*?"<>|]/g, '-').replace(/\s+/g, ' ').trim()} plugin.json`;
       download(fileName, Plugins.exportData(id));
       pmsg(`Exported ${fileName}.`);
@@ -6022,6 +6851,14 @@ function startShell(baseSmithyRules, baseStatsRules) {
       }
     }
   });
+
+  // ---------- plugin builder ----------
+  const builder = createPluginBuilder({
+    $, esc, baseSmithy: baseSmithyRules, baseStats: baseStatsRules, Plugins, download,
+    goPlugins: () => show('plugins'),
+    afterInstall: (res) => reloadWithMessage(`${res.replaced ? 'Updated' : 'Installed'} ${res.name}.`),
+  });
+  $('plugin-build').addEventListener('click', () => show('builder'));
 
   // First visit: the profile list. After that: straight into the profile that was open last.
   let after = null;

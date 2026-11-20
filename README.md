@@ -2,6 +2,13 @@
 
 ## Plugins
 
+**Plugin builder** (Plugins page): make a plugin with forms instead of editing JSON. It covers everything a plugin can hold:
+weapon types (with the 4x2 abilities), armor types, shield types (including "no agility nerf"), weapon/bow/armor/shield mods
+(levels, values, whole/percent, calculator effects, limiting to bows/armor types/shields, stackable) and races (per-stat overrides).
+Entries can start blank or from a built-in one, and are checked live with the same rules the importer uses (name clashes are
+flagged). You can open a file, edit an installed plugin, load the example, edit the JSON directly, download the file, or install it
+(installing under an existing name updates it). Your work is kept as a draft on the device.
+
 Open a profile, then **Plugins** on the home page. A plugin is a `.json` file that adds custom
 weapon types, armor types, shield types, mods and races. **Download example** gives a file to start from.
 
