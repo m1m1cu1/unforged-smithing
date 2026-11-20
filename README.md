@@ -12,6 +12,7 @@ account and no server.
 - [Plugins](#plugins) and the [Plugin builder](#plugin-builder)
 - [Custom Stats content in plugins](#custom-stats-content-in-plugins)
 - [Installing and offline use](#installing-and-offline-use)
+- [Use inside the Unforged website](#use-inside-the-unforged-website)
 - [Files in this repository](#files-in-this-repository)
 
 ## Getting started
@@ -342,6 +343,22 @@ The app is a progressive web app. Host the files on any static web server (for e
   is ready the app shows a **Reload** bar instead of swapping code under you mid-edit.
 
 Opening `index.html` straight from disk works for everything except installing and offline caching.
+
+## Use inside the Unforged website
+
+This repository is the only home of the app's code. The Unforged website (a separate repo) embeds it: its build cuts
+`index.html` into a page and two scripts (`scripts/sync-app.mjs` in the site repo), and adds an account-synced "online" mode.
+For that, the app has a few optional hooks:
+
+- `window.UnforgedConfig` (`{ mode: 'online' | 'offline', site: true, userId, name }`) turns on the site's links, the
+  online/offline notes and the account data box.
+- `window.UnforgedSync` (`{ ns, storage, deleteAll }`) replaces the browser storage with one that mirrors the account, and
+  prefixes the app's draft keys per account.
+
+When the page is opened by itself neither exists, so none of this shows and nothing changes: the app is the same standalone PWA
+described above. Keep it that way: any change here should work without the hooks, and the site picks it up by updating its
+submodule and running `npm run sync-app`. The page must keep exactly three inline `<script>` blocks (theme, app, install bar),
+because the site's script relies on that layout.
 
 ## Files in this repository
 

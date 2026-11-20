@@ -1,5 +1,5 @@
 // Cache the app shell for offline use. Update VERSION whenever shipped files change.
-const VERSION = 'unforged-202611201950';
+const VERSION = 'unforged-202611201356';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'favicon.ico', 'favicon-32.png'];
 self.addEventListener('install', (e) => {
   // No automatic skipWaiting: the page offers "Reload" so an update never swaps code under someone mid-edit.
