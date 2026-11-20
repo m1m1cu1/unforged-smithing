@@ -341,6 +341,8 @@ input[type="number"] { text-align: center; font-variant-numeric: tabular-nums; }
 .summary .stat-main .stat-num { color: var(--fg); }
 
 /* ---- page shell: profiles, tool chooser, send ---- */
+.section-io { display: flex; flex-direction: column; gap: 0.25rem; }
+.section-io .note:empty { display: none; }
 .top-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; }
 .top-actions .btn[hidden] { display: none; }
 #view-smithy, #view-stats { display: flex; flex-direction: column; gap: 1.25rem; }
@@ -553,6 +555,21 @@ input[type="number"] { text-align: center; font-variant-numeric: tabular-nums; }
         <button class="tab" type="button" data-screen="armor">Armor</button>
         <button class="tab" type="button" data-screen="shields">Shields</button>
       </nav>
+    <div class="section-io" id="smithy-io">
+      <div class="actions">
+        <span class="note">All saved Smithy items of this profile:</span>
+        <button class="btn file-btn" type="button" id="smithy-export">Export Smithy</button>
+        <button class="btn file-btn" type="button" id="smithy-import">Import Smithy</button>
+        <input type="file" id="smithy-file" accept=".json,application/json" hidden aria-label="Choose a Smithy file">
+      </div>
+      <div id="smithy-io-confirm" class="saved-confirm" hidden>
+        <span id="smithy-io-confirm-text"></span>
+        <button class="btn" type="button" id="smithy-io-add">Add to existing</button>
+        <button class="btn" type="button" id="smithy-io-replace">Replace all</button>
+        <button class="btn" type="button" id="smithy-io-cancel">Cancel</button>
+      </div>
+      <p id="smithy-io-msg" class="note" role="status"></p>
+    </div>
     <main id="screen-weapons" class="grid">
     <section class="panel inputs" aria-labelledby="h-forge">
       <h2 id="h-forge" class="panel-title">Forge settings</h2>
@@ -659,7 +676,7 @@ input[type="number"] { text-align: center; font-variant-numeric: tabular-nums; }
 
   <main id="screen-shields" class="grid grid-shields" hidden></main>
 
-  
+
     <footer class="foot">Weapons, bows, arrows, armor and shields. Rules version <span id="rules-version"></span>.</footer>
   </div>
 
@@ -676,6 +693,21 @@ input[type="number"] { text-align: center; font-variant-numeric: tabular-nums; }
   <div id="sbs-bar" class="sbs-bar" hidden>
     <button class="btn btn-small" type="button" id="sbs-toggle" aria-pressed="false">Side by side</button>
     <label id="sbs-pick-wrap" for="sbs-pick" hidden>Beside <select id="sbs-pick"></select></label>
+  </div>
+
+  <div class="section-io" id="stats-io">
+    <div class="actions">
+      <span class="note">Calculator, sheet, skills and purchases of this profile:</span>
+      <button class="btn file-btn" type="button" id="stats-export">Export Stats</button>
+      <button class="btn file-btn" type="button" id="stats-import">Import Stats</button>
+      <input type="file" id="stats-file" accept=".json,application/json" hidden aria-label="Choose a Stats file">
+    </div>
+    <div id="stats-io-confirm" class="saved-confirm" hidden>
+      <span id="stats-io-confirm-text"></span>
+      <button class="btn" type="button" id="stats-io-replace">Replace</button>
+      <button class="btn" type="button" id="stats-io-cancel">Cancel</button>
+    </div>
+    <p id="stats-io-msg" class="note" role="status"></p>
   </div>
 
   <div id="stats-screens">
@@ -1062,6 +1094,71 @@ function createProfileStore(storage) {
       p.stats = checked.profile.stats; p.sheet = checked.profile.sheet; p.skills = checked.profile.skills; p.purchases = checked.profile.purchases; p.saved = checked.profile.saved;
       data.profiles.push(p); persist();
       return { id: p.id, name: p.name };
+    },
+
+    // ---------- section files (Smithy or Stats of the open profile) ----------
+    // 'smithy' holds every saved item; 'stats' holds the calculator, character sheet, skills and purchases.
+    exportSection(section, rulesVersions) {
+      const p = find(data.currentId);
+      const base = { app: 'unforged-smithing', kind: `${section}-data`, rulesVersion: rulesVersions, name: p.name };
+      if (section === 'smithy') return { ...base, saved: copy(p.saved) };
+      return { ...base, stats: copy(p.stats), sheet: copy(p.sheet), skills: copy(p.skills || []), purchases: copy(p.purchases) };
+    },
+    // Checks a parsed file. Accepts a section file of the same kind, or a whole profile file (its matching part is used).
+    // Returns { error } or { section, saved } / { section, stats, sheet, skills, purchases } plus { count, existing }.
+    inspectSection(section, obj) {
+      const cur = find(data.currentId);
+      const label = section === 'smithy' ? 'Smithy' : 'Stats';
+      if (!obj || obj.app !== 'unforged-smithing') return { error: `This file was not saved by this app. Choose a ${label} file exported from here.` };
+      let src;
+      if (obj.kind === `${section}-data`) src = obj;
+      else if (obj.kind === 'profile' && obj.profile && typeof obj.profile === 'object') src = obj.profile;
+      else if (obj.kind === 'smithy-data' || obj.kind === 'stats-data') return { error: `This is a ${obj.kind === 'smithy-data' ? 'Smithy' : 'Stats'} file. Import it from the ${obj.kind === 'smithy-data' ? 'Smithy' : 'Stats'} page instead.` };
+      else return { error: `This file is not a ${label} file.` };
+      if (section === 'smithy') {
+        const saved = cleanSaved(src.saved);
+        const count = ITEM_KINDS.reduce((n, k) => n + saved[k].length, 0);
+        const existing = ITEM_KINDS.reduce((n, k) => n + cur.saved[k].length, 0);
+        return { section, saved, count, existing };
+      }
+      const out = {
+        section,
+        stats: src.stats && typeof src.stats === 'object' ? copy(src.stats) : null,
+        sheet: src.sheet && typeof src.sheet === 'object' ? copy(src.sheet) : null,
+        skills: cleanSkillsShape(src.skills),
+        purchases: cleanPurchasesShape(src.purchases),
+      };
+      const hasPurchases = (pu) => Object.values(pu).some((g) => Object.keys(g).length);
+      out.count = (out.stats ? 1 : 0) + (out.sheet ? 1 : 0) + out.skills.length + (hasPurchases(out.purchases) ? 1 : 0);
+      out.existing = (cur.stats ? 1 : 0) + (cur.sheet ? 1 : 0) + (cur.skills || []).length + (hasPurchases(cur.purchases) ? 1 : 0);
+      return out;
+    },
+    // mode: 'replace' (overwrites that part of the open profile) or 'add' (Smithy only: keeps existing items,
+    // renaming imported ones that share a name). Returns { added } for Smithy.
+    commitSection(checked, mode) {
+      const p = find(data.currentId);
+      if (checked.section === 'stats') {
+        p.stats = checked.stats; p.sheet = checked.sheet; p.skills = checked.skills; p.purchases = checked.purchases;
+        persist();
+        return {};
+      }
+      if (mode === 'replace') {
+        p.saved = checked.saved; persist();
+        return { added: checked.count };
+      }
+      let added = 0;
+      for (const kind of ITEM_KINDS) {
+        for (const x of checked.saved[kind]) {
+          const item = copy(x);
+          if (p.saved[kind].some((y) => y.id === item.id)) item.id = itemId();
+          const title = uniqueTitle(p.saved[kind], item.title);
+          if (title !== item.title) { item.title = title; item.name = title; }
+          p.saved[kind].push(item);
+          added++;
+        }
+      }
+      persist();
+      return { added };
     },
   };
 }
@@ -5284,6 +5381,8 @@ function startShell(smithyRules, statsRules) {
     const cur = Profiles.current();
     $('nav-profile-name').textContent = cur.name;
     $('home-profile-name').textContent = cur.name;
+    // A different profile or view should not keep a half-answered import question or an old message.
+    for (const s of ['smithy', 'stats']) { $(`${s}-io-confirm`).hidden = true; $(`${s}-io-msg`).textContent = ''; }
     if (name === 'profiles') renderProfiles();
   }
   $('nav-profile').addEventListener('click', () => show('profiles'));
@@ -5422,6 +5521,66 @@ function startShell(smithyRules, statsRules) {
   $('import-replace').addEventListener('click', () => pendingImport && finishImport(pendingImport, 'replace'));
   $('import-both').addEventListener('click', () => pendingImport && finishImport(pendingImport, 'new'));
   $('import-cancel').addEventListener('click', () => { pendingImport = null; $('import-confirm').hidden = true; });
+
+  // ---------- Smithy and Stats files (the open profile) ----------
+  const SECTIONS = {
+    smithy: {
+      label: 'Smithy',
+      reload: () => SMITHY.refreshSaved(),
+      noun: (n) => `${n} saved item${n === 1 ? '' : 's'}`,
+    },
+    stats: {
+      label: 'Stats',
+      reload: () => stats.reload(),
+      noun: (n) => `${n} stats entr${n === 1 ? 'y' : 'ies'}`,
+    },
+  };
+  function wireSection(section) {
+    const cfg = SECTIONS[section];
+    const say = (t) => { $(`${section}-io-msg`).textContent = t; };
+    const box = $(`${section}-io-confirm`);
+    let pending = null;
+    const close = () => { pending = null; box.hidden = true; };
+    function finish(mode) {
+      if (!pending) return;
+      const res = Profiles.commitSection(pending, mode);
+      if (!Profiles.isWritable()) say('Imported, but saving is not available in this browser, so it will be lost when the page is closed.');
+      else say(section === 'smithy'
+        ? `Imported ${cfg.noun(res.added)} into ${Profiles.current().name}.`
+        : `Imported Stats into ${Profiles.current().name}.`);
+      close();
+      cfg.reload();
+    }
+    $(`${section}-export`).addEventListener('click', () => {
+      const data = Profiles.exportSection(section, { smithy: smithyRules.version, stats: statsRules.version });
+      const fileName = `${data.name.replace(/[\\/:*?"<>|]/g, '-').replace(/\s+/g, ' ').trim()} ${section}.json`;
+      download(fileName, data);
+      say(`Exported ${fileName}.`);
+    });
+    $(`${section}-import`).addEventListener('click', () => $(`${section}-file`).click());
+    $(`${section}-file`).addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      e.target.value = '';
+      if (!file) return;
+      say(''); close();
+      let data;
+      try { data = JSON.parse(await file.text()); } catch (err) { say(`This file could not be read. Choose a ${cfg.label} file exported from this app.`); return; }
+      const checked = Profiles.inspectSection(section, data);
+      if (checked.error) { say(checked.error); return; }
+      if (!checked.count) { say(`This file has no ${cfg.label} data to import.`); return; }
+      pending = checked;
+      if (!checked.existing) { finish('replace'); return; }
+      $(`${section}-io-confirm-text`).textContent = section === 'smithy'
+        ? `The file has ${cfg.noun(checked.count)}. ${Profiles.current().name} already has ${checked.existing}.`
+        : `${Profiles.current().name} already has Stats data. Replace it with the file?`;
+      box.hidden = false;
+    });
+    $(`${section}-io-replace`).addEventListener('click', () => finish('replace'));
+    if (section === 'smithy') $('smithy-io-add').addEventListener('click', () => finish('add'));
+    $(`${section}-io-cancel`).addEventListener('click', close);
+  }
+  wireSection('smithy');
+  wireSection('stats');
 
   // First visit: the profile list. After that: straight into the profile that was open last.
   show(last ? 'home' : 'profiles');
