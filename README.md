@@ -350,4 +350,5 @@ Opening `index.html` straight from disk works for everything except installing a
 | `index.html` | The whole app: page, styles, calculation rules and screens in one file. |
 | `sw.js` | Service worker for offline use. Bump `VERSION` on every change. |
 | `manifest.webmanifest` | Install details: name, colours, icons. |
+| `favicon.ico`, `favicon-32.png` | Browser tab icons (artwork on white so they read on light and dark tabs). |
 | `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon.png` | App icons (the maskable one fills the whole square for Android's round and rounded icons). |

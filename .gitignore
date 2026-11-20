@@ -1,0 +1,229 @@
+# ============================================================
+# Unforged .gitignore
+# Operating systems, editors, Node/Astro/Cloudflare, secrets
+# ============================================================
+
+# ---------- Secrets (never commit these) ----------
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+secrets.*
+credentials.json
+service-account*.json
+
+# ---------- macOS ----------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+__MACOSX/
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+Icon?
+
+# ---------- Windows ----------
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+*.stackdump
+[Dd]esktop.ini
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# ---------- Linux ----------
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+.gvfs
+.xsession-errors*
+
+# ---------- Editors and IDEs ----------
+# VS Code (keep shared settings files)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+*.code-workspace
+.history/
+*.vsix
+
+# JetBrains (WebStorm, IntelliJ, etc.)
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+Session.vim
+Sessionx.vim
+.netrwhist
+tags
+[._]*.un~
+
+# Emacs
+\#*\#
+.\#*
+.emacs.desktop
+.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Nova, Zed, Cursor, other editors
+.nova/
+.zed/
+.cursor/
+.fleet/
+
+# ---------- Node, Astro, Cloudflare ----------
+node_modules/
+.pnp
+.pnp.js
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Build output
+dist/
+build/
+.astro/
+.output/
+.svelte-kit/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+.turbo/
+.vercel/
+.netlify/
+
+# Cloudflare Wrangler
+.wrangler/
+.mf/
+worker-configuration.d.ts
+wrangler.toml.bak
+
+# Logs and debug output
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Caches and tooling
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+.npm
+.node_repl_history
+*.tgz
+
+# Test output
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+
+# ---------- Ruby (in case of Jekyll or Ruby tooling) ----------
+.bundle/
+vendor/bundle/
+.sass-cache/
+_site/
+.jekyll-cache/
+
+# ---------- Python (helper scripts) ----------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# ---------- Local databases and dumps ----------
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.sql.bak
+*.dump
+
+# ---------- Archives, backups, temp files ----------
+*.zip
+*.7z
+*.rar
+*.tar
+*.tar.gz
+*.bak
+*.orig
+*.rej
+*.swp
+*.tmp
+*.temp
+.tmp/
+tmp/
+temp/
+
+# ---------- Large source art and rulebook files ----------
+# Remove these lines if you want the PDFs and design files in the repo.
+*.psd
+*.psb
+*.ai
+*.xcf
+*.kra
+*.blend
+*.blend1
+*.afdesign
+*.afphoto
