@@ -22,7 +22,7 @@ account and no server.
 3. The home page offers three tools: **Smithy**, **Stats** and **Plugins**. The **Tools** button in the header returns to this
    page, and **Profile: name** returns to the profile list.
 4. **Text size** (A- / A+) in the header changes the size of all text. It is remembered.
-5. **Theme** in the header cycles Auto (follows your device), Light, Dark and High contrast. It is remembered.
+5. **Theme** in the header is a drop-down: Unforged (the default, matching the Unforged website), Unforged Light, Mac Light, Mac Dark and High contrast. Your choice is remembered.
 6. **Print** (in Smithy and Stats) prints the page or saves it as a PDF, with the buttons and tabs left out.
 
 ## Profiles

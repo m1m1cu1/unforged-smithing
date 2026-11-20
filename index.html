@@ -11,50 +11,70 @@
 /* Layout: forge settings on the left, the forged weapon card on the right,
    abilities and metal effects below, mod browser last. One column on phones. */
 
-/* Dark-first: the forge at night. Light values further down. */
+/* Colour themes. Pick one from the Theme drop-down in the header; the choice is remembered.
+   Default: "Unforged", the same dark red-and-black scheme as the Unforged website.
+   Also: Unforged Light, Mac Light, Mac Dark and High contrast.
+   Every theme sets the same variables, so the rest of the page just uses var(--...). */
 :root {
-  --bg: #15181c;
-  --surface: #1e2227;
-  --surface-2: #272c33;
-  --line: #3a414a;
-  --fg: #ece8e1;
-  --muted: #a8aeb6;
-  --accent: #e8793a;      /* heat: used for damage, primary actions and focus */
-  --accent-fg: #1a0e05;
-  --steel: #86a6bd;       /* quenched steel: selection and info */
-  --danger: #ef7b72;
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface-2: #1f1f1f;
+  --line: #2a2a2a;
+  --fg: #f1eee8;
+  --muted: #a39f96;
+  --accent: #e8504c;      /* the site's red: damage, primary actions and focus */
+  --accent-fg: #140404;
+  --steel: #3a9cbd;       /* the site's teal: selection and info */
+  --danger: #ff7a6b;
   --tint: #8a8d93;        /* metal colour for the art placeholder, set from script */
-  --font-head: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
-  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-head: Cinzel, Baskervville, "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --font-body: Lato, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color-scheme: dark;
 }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --bg: #e6e9ec;
-    --surface: #f6f7f8;
-    --surface-2: #e0e4e8;
-    --line: #bfc6ce;
-    --fg: #1b2026;
-    --muted: #4f5a65;
-    --accent: #b04414;
-    --accent-fg: #ffffff;
-    --steel: #2f5f80;
-    --danger: #b3261e;
-    color-scheme: light;
-  }
-}
+/* Unforged Light: the website's scheme on warm paper, with the same red and teal. */
 :root[data-theme="light"] {
-  --bg: #e6e9ec;
-  --surface: #f6f7f8;
-  --surface-2: #e0e4e8;
-  --line: #bfc6ce;
-  --fg: #1b2026;
-  --muted: #4f5a65;
-  --accent: #b04414;
+  --bg: #f1ece3;
+  --surface: #faf7f2;
+  --surface-2: #e7dfd2;
+  --line: #d3c9ba;
+  --fg: #1c1714;
+  --muted: #5c544a;
+  --accent: #b5232a;
   --accent-fg: #ffffff;
-  --steel: #2f5f80;
-  --danger: #b3261e;
+  --steel: #17566b;
+  --danger: #a8201a;
   color-scheme: light;
+}
+/* Mac Light and Mac Dark: macOS system colours, system blue accent and the system font. */
+:root[data-theme="mac-light"] {
+  --bg: #ececec;
+  --surface: #ffffff;
+  --surface-2: #f2f2f4;
+  --line: #d2d2d7;
+  --fg: #1d1d1f;
+  --muted: #5f5f65;
+  --accent: #0066d6;
+  --accent-fg: #ffffff;
+  --steel: #0a6b3c;
+  --danger: #d70015;
+  --font-head: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+  color-scheme: light;
+}
+:root[data-theme="mac-dark"] {
+  --bg: #1e1e1e;
+  --surface: #2a2a2c;
+  --surface-2: #363638;
+  --line: #48484a;
+  --fg: #f5f5f7;
+  --muted: #a1a1a8;
+  --accent: #4aa0ff;
+  --accent-fg: #001a33;
+  --steel: #32d74b;
+  --danger: #ff6961;
+  --font-head: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+  color-scheme: dark;
 }
 /* High contrast: pure black and white with bright accents. */
 :root[data-theme="contrast"] {
@@ -107,12 +127,8 @@ body {
 .brand-logo { width: 2.75rem; height: 2.75rem; flex: none; }
 /* The dark-theme logo is white artwork; the light-theme logo is black artwork. */
 .brand-logo.logo-light { display: none; }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]):not([data-theme="contrast"]) .brand-logo.logo-dark { display: none; }
-  :root:not([data-theme="dark"]):not([data-theme="contrast"]) .brand-logo.logo-light { display: inline; }
-}
-:root[data-theme="light"] .brand-logo.logo-dark { display: none; }
-:root[data-theme="light"] .brand-logo.logo-light { display: inline; }
+:root[data-theme="light"] .brand-logo.logo-dark, :root[data-theme="mac-light"] .brand-logo.logo-dark { display: none; }
+:root[data-theme="light"] .brand-logo.logo-light, :root[data-theme="mac-light"] .brand-logo.logo-light { display: inline; }
 .brand-name { font-family: var(--font-head); font-size: 1.6rem; font-weight: 700; letter-spacing: 0.01em; }
 .tabs { display: flex; flex-wrap: wrap; gap: 0.25rem; }
 .tab {
@@ -123,6 +139,8 @@ body {
 .tab-on { color: var(--fg); border-bottom-color: var(--accent); font-weight: 600; }
 .textsize { display: flex; align-items: center; gap: 0.4rem; }
 .textsize-label { color: var(--muted); font-size: 0.85rem; }
+.theme-pick { display: flex; align-items: center; gap: 0.4rem; }
+.theme-pick select { width: auto; min-height: 2.25rem; padding: 0.2rem 0.5rem; }
 
 /* ---- layout ---- */
 .grid {
@@ -517,13 +535,13 @@ input[type="number"] { text-align: center; font-variant-numeric: tabular-nums; }
 .row-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
 .cs-bleed-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .cs-bleed-row input { width: 7em; }
-.cs-weak { border: 2px solid #b3541e; border-radius: 6px; padding: 8px 12px; margin-bottom: 12px; }
+.cs-weak { border: 2px solid var(--accent); border-radius: 6px; padding: 8px 12px; margin-bottom: 12px; }
 .cs-weak ul { margin: 6px 0 0 18px; padding: 0; }
 
 /* Two Stats tabs side by side (wide screens only) */
 .sbs-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 4px 0 12px; }
 .sbs-bar select { margin-left: 6px; }
-.btn-on { background: var(--accent, #b3541e); color: #fff; }
+.btn-on { background: var(--accent); color: var(--accent-fg); }
 @media (min-width: 900px) {
   #stats-screens.sbs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
   #stats-screens.sbs > div[hidden] { display: none; }
@@ -587,8 +605,7 @@ input[type="number"] { text-align: center; font-variant-numeric: tabular-nums; }
 .sync-pill[data-state="saved"] { opacity: .8; }
 .sync-pill[data-state="conflict"], .sync-pill[data-state="signedout"], .sync-pill[data-state="full"], .sync-pill[data-state="error"] { border-color: var(--danger); color: var(--danger); }
 </style>
-<meta name="theme-color" content="#e6e9ec" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#15181c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0a0a0a">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -596,7 +613,7 @@ input[type="number"] { text-align: center; font-variant-numeric: tabular-nums; }
 <meta name="apple-mobile-web-app-title" content="Unforged">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script>
-try { var t = localStorage.getItem('unforged-theme'); if (t === 'light' || t === 'dark' || t === 'contrast') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* follow the device */ }
+try { var t = localStorage.getItem('unforged-theme'); if (t === 'light' || t === 'mac-light' || t === 'mac-dark' || t === 'contrast') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* default theme */ }
 </script>
 </head>
 <body>
@@ -618,7 +635,14 @@ try { var t = localStorage.getItem('unforged-theme'); if (t === 'light' || t ===
       <button class="btn btn-small" type="button" id="nav-print" hidden aria-label="Print this page or save it as a PDF">Print</button>
       <button class="btn btn-small" type="button" id="nav-tools" hidden>Tools</button>
       <button class="btn btn-small" type="button" id="nav-profile" hidden>Profile: <span id="nav-profile-name"></span></button>
-      <button class="btn btn-small" type="button" id="theme-toggle" aria-label="Colour theme">Theme: Auto</button>
+      <label class="theme-pick" for="theme-select"><span class="textsize-label">Theme</span>
+        <select id="theme-select">
+          <option value="">Unforged</option>
+          <option value="light">Unforged Light</option>
+          <option value="mac-light">Mac Light</option>
+          <option value="mac-dark">Mac Dark</option>
+          <option value="contrast">High contrast</option>
+        </select></label>
       <div class="textsize" role="group" aria-label="Text size">
         <span class="textsize-label">Text size</span>
         <button class="btn btn-small" type="button" id="text-down" aria-label="Smaller text">A&minus;</button>
@@ -6700,22 +6724,22 @@ function startShell(baseSmithyRules, baseStatsRules) {
   $('text-up').addEventListener('click', () => { sizeIndex = Math.min(TEXT_SIZES.length - 1, sizeIndex + 1); applySize(); });
   applySize();
 
-  // ---------- colour theme: follow the device, or choose light, dark or high contrast ----------
-  const THEMES = [['', 'Auto'], ['light', 'Light'], ['dark', 'Dark'], ['contrast', 'High contrast']];
-  let themeIndex = 0;
-  try {
-    const saved = localStorage.getItem('unforged-theme');
-    const i = THEMES.findIndex((t) => t[0] === saved);
-    if (i > 0) themeIndex = i;
-  } catch (e) { themeIndex = 0; }
-  function applyTheme() {
-    const [key, label] = THEMES[themeIndex];
+  // ---------- colour theme: Unforged (default), Unforged Light, Mac Light, Mac Dark or High contrast ----------
+  const THEME_KEYS = ['', 'light', 'mac-light', 'mac-dark', 'contrast'];
+  const THEME_BAR = { '': '#0a0a0a', light: '#f1ece3', 'mac-light': '#ececec', 'mac-dark': '#1e1e1e', contrast: '#000000' };
+  function applyTheme(key) {
+    if (THEME_KEYS.indexOf(key) < 0) key = '';
     if (key) document.documentElement.setAttribute('data-theme', key); else document.documentElement.removeAttribute('data-theme');
-    $('theme-toggle').textContent = `Theme: ${label}`;
+    $('theme-select').value = key;
+    const bar = document.querySelector('meta[name="theme-color"]');
+    if (bar) bar.setAttribute('content', THEME_BAR[key]);
     try { if (key) localStorage.setItem('unforged-theme', key); else localStorage.removeItem('unforged-theme'); } catch (e) { /* ignore */ }
   }
-  $('theme-toggle').addEventListener('click', () => { themeIndex = (themeIndex + 1) % THEMES.length; applyTheme(); });
-  applyTheme();
+  $('theme-select').addEventListener('change', (e) => applyTheme(e.target.value));
+  let savedTheme = '';
+  // An older saved "dark" meant the old dark look; the default Unforged theme replaces it.
+  try { savedTheme = localStorage.getItem('unforged-theme') || ''; } catch (e) { savedTheme = ''; }
+  applyTheme(savedTheme);
 
   // ---------- start the tools on the profile that was open last ----------
   Profiles.probe();
