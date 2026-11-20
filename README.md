@@ -21,7 +21,8 @@ account and no server.
 3. The home page offers three tools: **Smithy**, **Stats** and **Plugins**. The **Tools** button in the header returns to this
    page, and **Profile: name** returns to the profile list.
 4. **Text size** (A- / A+) in the header changes the size of all text. It is remembered.
-5. The app follows your device's light or dark setting.
+5. **Theme** in the header cycles Auto (follows your device), Light, Dark and High contrast. It is remembered.
+6. **Print** (in Smithy and Stats) prints the page or saves it as a PDF, with the buttons and tabs left out.
 
 ## Profiles
 
@@ -34,7 +35,7 @@ A profile is one character. Each profile keeps its own:
 - Saved Smithy items (weapons, bows, arrows, armor, shields)
 
 The list shows how much each profile has spent in thousands of gold (stat and health points, purchases, learned skills and every
-saved item). Per profile you can **Open**, **Rename**, **Duplicate**, **Export** and **Delete**. The Default profile always
+saved item). Per profile you can **Open**, **Rename**, **Duplicate**, **Export**, **Share**, **Copy** and **Delete**. The Default profile always
 exists, is always first, and cannot be renamed or deleted. Names are unique (a clash gets a number added) and limited to 40
 characters. The profile that was open last opens again next time.
 
@@ -188,6 +189,8 @@ windows) the app warns you that profiles will be lost when the page closes.
 
 | What | Where | Result |
 | --- | --- | --- |
+| Everything | Profiles > **Back up everything** / **Copy backup** | One `.json` with every profile and plugin (on phones, the share sheet). Restore it with **Import profile** or **Import from pasted text**; matching names ask to **Replace** or **Keep both**. A note shows how long ago you last backed up. |
+| A profile as text or through the share sheet | Profiles > **Share** / **Copy**, then **Import from pasted text** on the other device | Works on phones, where file buttons are hidden. **Share** appears only where the browser can share files. |
 | A whole profile | Profiles > **Export** / **Import profile** | One `.json` named like `Name 42k.json` (name and thousands spent). Importing asks whether to **Replace** a profile with the same name or **Keep both**. |
 | All saved Smithy items | Smithy > **Export Smithy** / **Import Smithy** | **Add to existing** or **Replace all**. |
 | Stats, sheet, skills and purchases | Stats > **Export Stats** / **Import Stats** | Replaces the profile's stats data after confirmation. |
@@ -195,7 +198,12 @@ windows) the app warns you that profiles will be lost when the page closes.
 | A plugin | Plugins page or Plugin builder | See below. |
 
 Imports are checked, and anything damaged or unknown is dropped rather than breaking the app. On phones the file buttons are
-hidden because phones cannot use files in a helpful way; there, use **Save** and **Copy description**.
+hidden because phones cannot use files in a helpful way; there, use **Share**, **Copy**, **Copy backup** and **Import from pasted text** on the
+Profiles screen, and **Save** and **Copy description** in the Smithy.
+
+Every file the app writes has a `schema` number. A file with a higher number than the app knows (made by a newer version) is refused with a
+message to reload and try again; older files without one still import. When two tabs are open and one changes your data, the other
+shows a **Reload** bar so it cannot overwrite the change.
 
 ## Plugins
 
@@ -252,6 +260,7 @@ weapon types, armor types, shield types, mods, races, active actions, passives a
 }
 ```
 
+- An optional `"requiresSchema": 2` (a number) makes older versions of the app refuse the plugin with a clear message instead of misreading it.
 - Every list is optional, but a plugin must add something. Unknown keys (like `_help`) are ignored.
 - Mod `effects` point at a value of the level (0 is the first). Allowed keys: weaponMods `speed`, `strength`, `throwRange`;
   bowMods `strength`, `speed`, `sweetRange`, `farRange`, `strengthHarder`; armorMods `agility`, `armorMultiplier`,
@@ -322,11 +331,15 @@ Omit `races`, or use an empty list, to make an entry available to every race. Ra
 
 The app is a progressive web app. Host the files on any static web server (for example GitHub Pages) and open the address:
 
-- **Phone or tablet:** use *Add to Home Screen* (iOS: Share menu; Android: browser menu / *Install app*).
+- **Phone or tablet:** use *Add to Home Screen* (iOS: Share menu; Android: browser menu / *Install app*). Where the browser allows it the app
+  shows an **Install** bar; on iOS it shows how to add it once.
 - **Computer:** use the install icon in the address bar of Chrome or Edge.
+- **Shortcuts:** an installed app offers Smithy, Stats and Plugins on a long-press or right-click of its icon (they open `?go=smithy`, `?go=stats`
+  and `?go=plugins` on the profile that was open last).
 - **Offline:** after the first visit over `http(s)`, the files are cached. Online it always uses the newest files; offline it
   uses the saved copy.
-- **Updating:** `sw.js` has a `VERSION` string. Change it whenever you change the app so devices fetch the new files.
+- **Updating:** `sw.js` has a `VERSION` string. Change it whenever you change the app so devices fetch the new files. When a new version
+  is ready the app shows a **Reload** bar instead of swapping code under you mid-edit.
 
 Opening `index.html` straight from disk works for everything except installing and offline caching.
 
@@ -337,4 +350,4 @@ Opening `index.html` straight from disk works for everything except installing a
 | `index.html` | The whole app: page, styles, calculation rules and screens in one file. |
 | `sw.js` | Service worker for offline use. Bump `VERSION` on every change. |
 | `manifest.webmanifest` | Install details: name, colours, icons. |
-| `icon-192.png`, `icon-512.png`, `apple-touch-icon.png` | App icons. |
+| `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon.png` | App icons (the maskable one fills the whole square for Android's round and rounded icons). |

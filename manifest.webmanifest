@@ -17,6 +17,59 @@
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "id": "./",
+  "orientation": "any",
+  "categories": [
+    "games",
+    "utilities"
+  ],
+  "shortcuts": [
+    {
+      "name": "Smithy",
+      "short_name": "Smithy",
+      "description": "Weapons, bows, armor and shields",
+      "url": "./?go=smithy",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Stats",
+      "short_name": "Stats",
+      "description": "Stat costs, character sheet and damage",
+      "url": "./?go=stats",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Plugins",
+      "short_name": "Plugins",
+      "description": "Custom rules and races",
+      "url": "./?go=plugins",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
