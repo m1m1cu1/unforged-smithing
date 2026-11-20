@@ -1,5 +1,5 @@
 // Offline support. Changing VERSION makes phones fetch the new files.
-const VERSION = 'unforged-202611191940';
+const VERSION = 'unforged-202611192010';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
