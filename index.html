@@ -710,7 +710,7 @@ try { var t = localStorage.getItem('unforged-theme'); if (t === 'light' || t ===
       <div class="home-choices">
         <button class="home-choice" type="button" id="go-smithy"><span class="home-choice-title">Smithy</span><span class="note">Weapons, bows, armor and shields</span></button>
         <button class="home-choice" type="button" id="go-stats"><span class="home-choice-title">Stats</span><span class="note">Stat costs and health</span></button>
-        <button class="home-choice" type="button" id="go-plugins"><span class="home-choice-title">Plugins</span><span class="note">Custom weapon, armor and shield types, mods and races</span></button>
+        <button class="home-choice" type="button" id="go-plugins" hidden><span class="home-choice-title">Plugins</span><span class="note">Custom weapon, armor and shield types, mods and races</span></button>
       </div>
     </div>
   </section>
@@ -718,7 +718,7 @@ try { var t = localStorage.getItem('unforged-theme'); if (t === 'light' || t ===
   <section id="view-plugins" hidden aria-labelledby="h-plugins">
     <div class="panel plugin-panel">
       <h2 id="h-plugins" class="panel-title">Plugins</h2>
-      <p class="note">A plugin is a file that adds custom weapon types, armor types, shield types, metals, mods and races. Plugins are kept on this device and apply to every profile. Adding, removing or switching one reloads the page. Items saved with a plugin's type stay in your profile and work again when the plugin is on. The Plugin builder makes plugin files with forms, no file editing needed.</p>
+      <p class="note">A plugin is a file that adds custom weapon types, bows, armor types, shield types, metals, mods and races. Plugins are kept on this device and apply to every profile. Adding, removing or switching one reloads the page. Items saved with a plugin's type stay in your profile and work again when the plugin is on. The Plugin builder makes plugin files with forms, no file editing needed.</p>
       <div class="actions">
         <button class="btn btn-primary" type="button" id="plugin-build">Plugin builder</button>
         <button class="btn file-btn" type="button" id="plugin-import">Import plugin</button>
@@ -743,7 +743,7 @@ try { var t = localStorage.getItem('unforged-theme'); if (t === 'light' || t ===
         <h2 id="h-builder" class="panel-title">Plugin builder</h2>
         <button class="btn btn-small" type="button" id="pb-back">Back to Plugins</button>
       </div>
-      <p class="note">Build a plugin with forms instead of writing the file by hand. Everything a plugin can add is here: weapon, armor and shield types, custom metals, all four kinds of mods, and races with racial abilities.</p>
+      <p class="note">Build a plugin with forms instead of writing the file by hand. Everything a plugin can add is here: weapon, bow, armor and shield types, custom metals, all four kinds of mods, and races with racial abilities.</p>
       <div class="actions pb-toolbar">
         <button class="btn" type="button" id="pb-new">New plugin</button>
         <button class="btn file-btn" type="button" id="pb-open">Open file</button>
@@ -1423,7 +1423,7 @@ const Profiles = createProfileStore(pickStorage());
 // Rules are read once when the page starts, so adding, removing or switching a plugin reloads the page.
 const PLUGIN_KEY = 'unforged-plugins-v1';
 const PLUGIN_SECTIONS = [
-  ['weaponTypes', 'weapon type'], ['armorTypes', 'armor type'], ['shieldTypes', 'shield type'], ['metals', 'metal'],
+  ['weaponTypes', 'weapon type'], ['bows', 'bow'], ['armorTypes', 'armor type'], ['shieldTypes', 'shield type'], ['metals', 'metal'],
   ['weaponMods', 'weapon mod'], ['bowMods', 'bow mod'], ['armorMods', 'armor mod'], ['shieldMods', 'shield mod'],
   ['races', 'race'], ['actions', 'active action'], ['passives', 'passive'], ['styles', 'purchasable style'],
 ];
@@ -1501,6 +1501,15 @@ function cleanPlugin(obj, baseStart) {
       basePierce: num(x.basePierce, `${where}: basePierce`, 0, 1000), strengthBase: num(x.strengthBase, `${where}: strengthBase`, 0, 100),
       damageType: dt, hands, abilities: abil,
     };
+  }
+  function bow(x, where) {
+    const out = weapon(x, where);
+    const r = x.ranges && typeof x.ranges === 'object' && !Array.isArray(x.ranges) ? x.ranges : (bad(`${where}: ranges must be an object with closeEnd, sweetStart, sweetEnd and farEnd`), {});
+    const closeEnd = num(r.closeEnd, `${where}: ranges.closeEnd`, 1, 99, true), sweetStart = num(r.sweetStart, `${where}: ranges.sweetStart`, 2, 100, true);
+    const sweetEnd = num(r.sweetEnd, `${where}: ranges.sweetEnd`, 2, 100, true), farEnd = num(r.farEnd, `${where}: ranges.farEnd`, 3, 200, true);
+    if ([closeEnd, sweetStart, sweetEnd, farEnd].every((v) => v !== null) && !(closeEnd + 1 === sweetStart && sweetStart <= sweetEnd && sweetEnd < farEnd)) bad(`${where}: the ranges must follow each other (sweetStart is closeEnd + 1, sweetEnd is at least sweetStart, farEnd is above sweetEnd)`);
+    out.ranges = { closeEnd, sweetStart, sweetEnd, farEnd };
+    return out;
   }
   function armorType(x, where) {
     if (typeof x.heavyBdmg !== 'boolean') bad(`${where}: heavyBdmg must be true or false`);
@@ -1670,6 +1679,7 @@ function cleanPlugin(obj, baseStart) {
   }
   const out2 = {
     weaponTypes: each('weaponTypes', 'Weapon type', weapon),
+    bows: each('bows', 'Bow', bow),
     armorTypes: each('armorTypes', 'Armor type', armorType),
     shieldTypes: each('shieldTypes', 'Shield type', shieldType),
     metals: each('metals', 'Metal', metal),
@@ -1717,6 +1727,7 @@ function applyPlugins(smithyBase, statsBase, plugins) {
       }
     };
     put('weaponTypes', smithy.weapons, 'Weapon type');
+    put('bows', smithy.bows, 'Bow');
     put('armorTypes', smithy.armor.types, 'Armor type');
     put('shieldTypes', smithy.shield.types, 'Shield type');
     for (const item of pl.metals) {
@@ -1807,6 +1818,7 @@ function examplePlugin() {
     _help: [
       'Names must be new: an entry whose name already exists (in the app or in another plugin) is skipped.',
       'weaponTypes: damageType is "PRC" (piercing) or "BLNT" (blunt), hands is 1 or 2, abilities is 4 levels of exactly 2 choices.',
+      'bows: like weaponTypes, plus ranges { closeEnd, sweetStart, sweetEnd, farEnd } in hexes. sweetStart must be closeEnd + 1 and the ranges must rise.',
       'armorTypes: armorMultiplier and nerfMultiplier scale the armor and the agility/sneak nerf; strengthChange moves the strength requirement; heavyBdmg gives the base damage reduction heavy armor has.',
       'shieldTypes: agilityDivisor can be null for no agility nerf.',
       'Mods: each level has text with {0} {1} ... placeholders that are filled from values. kind "pct" shows percentages, "int" whole numbers.',
@@ -1823,6 +1835,16 @@ function examplePlugin() {
         [{ text: 'Example ability: parrying this weapon is 1 harder' }, { text: 'Example ability: equipping takes no action' }],
         [{ text: 'Example ability: sneak attacks deal 20% more damage' }, { text: 'Example ability: ignores 10% of armor' }],
         [{ text: 'Example ability: can be thrown as a free action' }, { text: 'Example ability: blocks count as parries' }],
+      ],
+    }],
+    bows: [{
+      name: 'Example Recurve', speed: 5, baseDamage: 5, basePierce: 10, strengthBase: 12, damageType: 'PRC', hands: 2,
+      ranges: { closeEnd: 8, sweetStart: 9, sweetEnd: 11, farEnd: 17 },
+      abilities: [
+        [{ text: 'Example ability: sweet spot attacks gain 10% pierce' }, { text: 'Example ability: reloading is 1 speed faster' }],
+        [{ text: 'Example ability: close range attacks deal 10% more damage' }, { text: 'Example ability: far range attacks lose no pierce' }],
+        [{ text: 'Example ability: ignores 10% of armor' }, { text: 'Example ability: shots can be fired while moving' }],
+        [{ text: 'Example ability: the first shot each turn is free' }, { text: 'Example ability: arrows never break on a sweet spot hit' }],
       ],
     }],
     armorTypes: [{ name: 'Example Scale', armorMultiplier: 0.9, nerfMultiplier: 0.75, strengthChange: 1, heavyBdmg: false }],
@@ -6041,6 +6063,10 @@ function createPluginBuilder(ctx) {
       title: 'Weapon types', label: 'Weapon type', one: 'weapon type', builtin: () => baseSmithy.weapons,
       help: 'A new melee weapon for the Weapons crafter. Each weapon has 4 ability levels with 2 choices each.',
     },
+    bows: {
+      title: 'Bows', label: 'Bow', one: 'bow', builtin: () => baseSmithy.bows,
+      help: 'A new bow for the Bows crafter. Set the three range limits in hexes; the close range runs from 1 to the close limit. Each bow has 4 ability levels with 2 choices each.',
+    },
     armorTypes: {
       title: 'Armor types', label: 'Armor type', one: 'armor type', builtin: () => baseSmithy.armor.types,
       help: 'The multipliers scale the armor and the agility/sneak nerf. Strength change moves the strength requirement.',
@@ -6102,6 +6128,7 @@ function createPluginBuilder(ctx) {
   const blankAbilities = () => [0, 1, 2, 3].map(() => [{ text: '' }, { text: '' }]);
   const BLANK = {
     weaponTypes: () => ({ speed: '3', baseDamage: '1.5', basePierce: '40', strengthBase: '15', damageType: 'PRC', hands: '1', abilities: blankAbilities() }),
+    bows: () => ({ speed: '5', baseDamage: '5', basePierce: '10', strengthBase: '12', damageType: 'PRC', hands: '2', closeEnd: '8', sweetEnd: '11', farEnd: '17', abilities: blankAbilities() }),
     armorTypes: () => ({ armorMultiplier: '1', nerfMultiplier: '1', strengthChange: '0', heavyBdmg: false }),
     shieldTypes: () => ({ baseHp: '20', hpMetalDivisor: '5', weight: '2', incrementMultiplier: '1', strengthBase: '12', agilityDivisor: '20' }),
     metals: () => ({
@@ -6123,7 +6150,11 @@ function createPluginBuilder(ctx) {
   function readEntry(section, x, dropDefaults) {
     x = x && typeof x === 'object' && !Array.isArray(x) ? x : {};
     const e = { _id: newId(), name: S(x.name).slice(0, 40) };
-    if (section === 'weaponTypes') {
+    if (section === 'weaponTypes' || section === 'bows') {
+      if (section === 'bows') {
+        const r = x.ranges && typeof x.ranges === 'object' ? x.ranges : x;
+        Object.assign(e, { closeEnd: S(r.closeEnd), sweetEnd: S(r.sweetEnd), farEnd: S(r.farEnd) });
+      }
       Object.assign(e, {
         speed: S(x.speed), baseDamage: S(x.baseDamage), basePierce: S(x.basePierce), strengthBase: S(x.strengthBase),
         damageType: x.damageType === 'BLNT' ? 'BLNT' : 'PRC', hands: x.hands === 2 || x.hands === '2' ? '2' : '1',
@@ -6245,7 +6276,11 @@ function createPluginBuilder(ctx) {
   const N = (s) => (s === '' || s === undefined || s === null ? undefined : Number(s));
   function entryOut(section, e) {
     const o = { name: e.name };
-    if (section === 'weaponTypes') {
+    if (section === 'weaponTypes' || section === 'bows') {
+      if (section === 'bows') {
+        const c = N(e.closeEnd);
+        o.ranges = { closeEnd: c, sweetStart: c === undefined ? undefined : c + 1, sweetEnd: N(e.sweetEnd), farEnd: N(e.farEnd) };
+      }
       Object.assign(o, {
         speed: N(e.speed), baseDamage: N(e.baseDamage), basePierce: N(e.basePierce), strengthBase: N(e.strengthBase),
         damageType: e.damageType, hands: Number(e.hands), abilities: e.abilities.map((lv) => lv.map((c) => ({ text: c.text }))),
@@ -6339,7 +6374,7 @@ function createPluginBuilder(ctx) {
   // What a mod can be limited to: built-in names plus this plugin's own types.
   function refChoices(section) {
     const own = (k) => state.data[k].map((e) => norm(e.name)).filter(Boolean);
-    if (section === 'bowMods') return baseSmithy.bows.map((b) => b.name);
+    if (section === 'bowMods') return [...baseSmithy.bows.map((b) => b.name), ...own('bows')];
     if (section === 'armorMods') return [...baseSmithy.armor.types.map((t) => t.name), ...own('armorTypes')];
     return [...baseSmithy.shield.types.map((t) => t.name), ...own('shieldTypes')];
   }
@@ -6365,7 +6400,7 @@ function createPluginBuilder(ctx) {
   const sel = (f, label, v, opts, h) => `<label class="pb-f"><span>${label}</span><select data-f="${f}">${opts.map(([val, t]) => `<option value="${esc(val)}"${String(val) === String(v) ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>${hint(h)}</label>`;
   const check1 = (f, label, on, extra = '') => `<label class="pb-check"><input type="checkbox" data-f="${f}"${on ? ' checked' : ''} ${extra}> <span>${label}</span></label>`;
 
-  function weaponBody(e) {
+  function weaponBody(e, isBow) {
     return `<div class="pb-grid">
       ${num('speed', 'Speed', e.speed, 'Whole number, 0 to 20')}
       ${num('baseDamage', 'Base damage', e.baseDamage, '0.01 to 1000')}
@@ -6374,6 +6409,12 @@ function createPluginBuilder(ctx) {
       ${sel('damageType', 'Damage type', e.damageType, [['PRC', 'Piercing (PRC)'], ['BLNT', 'Blunt (BLNT)']])}
       ${sel('hands', 'Hands', e.hands, [['1', 'One-handed'], ['2', 'Two-handed']])}
     </div>
+    ${isBow ? `<h4 class="pb-sub">Ranges (hexes)</h4>
+    <div class="pb-grid">
+      ${num('closeEnd', 'Close range ends at', e.closeEnd, 'Whole, 1 to 99. Close is 1 to this.')}
+      ${num('sweetEnd', 'Sweet spot ends at', e.sweetEnd, `Whole. The sweet spot starts at ${Number.isFinite(Number(e.closeEnd)) && e.closeEnd !== '' ? Number(e.closeEnd) + 1 : 'close + 1'}.`)}
+      ${num('farEnd', 'Far range ends at', e.farEnd, 'Whole, above the sweet spot end.')}
+    </div>` : ''}
     <h4 class="pb-sub">Abilities</h4>
     <p class="note">4 levels, each with 2 choices to pick from.</p>
     ${e.abilities.map((lv, li) => `<fieldset class="pb-abil"><legend>Ability level ${li + 1}</legend>
@@ -6506,7 +6547,8 @@ function createPluginBuilder(ctx) {
   }
 
   function cardBody(section, e) {
-    if (section === 'weaponTypes') return weaponBody(e);
+    if (section === 'weaponTypes') return weaponBody(e, false);
+    if (section === 'bows') return weaponBody(e, true);
     if (section === 'armorTypes') return armorBody(e);
     if (section === 'shieldTypes') return shieldBody(e);
     if (section === 'races') return raceBody(e);
