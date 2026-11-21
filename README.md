@@ -226,12 +226,13 @@ Plugins page > **Plugin builder** provides forms for crafting rules and races, p
 - **Details:** name (required), version and description, with a summary of what is inside.
 - **Weapon types:** speed, base damage, base pierce, base strength requirement, damage type, hands and the 4 x 2 abilities.
 - **Armor types:** armor and nerf multipliers, strength change and the heavy base-damage option.
+- **Metals:** a full custom metal: number, prices, upgrade and mod multipliers, speed and strength changes, extra mod slots, ability gold, optional special weapon rules (gold bonus, speed-based changes), optional armor rules (agility, strength requirement, excluded armor types) and optional shield rules, plus effect text for each.
 - **Shield types:** HP, HP metal divisor, weight, increment multiplier, strength requirement and agility divisor (or **No agility
   nerf**).
 - **Weapon, bow, armor and shield mods:** levels with text, up to 4 values per level (whole or percent) with **Insert {n}**
   buttons and a live preview of the finished text; which value feeds each calculator effect; armor mods can be stackable; bow,
   armor and shield mods can be limited to chosen bows, armor types (including your own) or shield types.
-- **Races:** tick only the stats that differ; the rest use the default.
+- **Races:** tick only the stats that differ; the rest use the default. Add **racial abilities** (a name and description each); they show on the Stats page and the character sheet.
 - **Active actions, passives and purchasables:** define custom Stats entries, including optional race restrictions. These use the same rule fields as the built-in Stats data; see [Custom Stats content in plugins](#custom-stats-content-in-plugins).
 - **JSON:** the file as it will be saved. You can edit it and press **Apply to builder**, or copy it.
 
@@ -257,7 +258,11 @@ weapon types, armor types, shield types, mods, races, active actions, passives a
   "bowMods":     [ same, plus optional "weapons": ["Crossbow"] ],
   "armorMods":   [ same, plus optional "stackable": true, "types": ["Light"] ],
   "shieldMods":  [ same, plus optional "shields": ["Kite"] ],
-  "races":       [ { "name", "start": { "strength": 17, "agility": 13 } } ]
+  "metals":      [ { "name", "number", "buyPrice", "sellPrice", "modCostPerLevel", "modStrengthMultiplier", "speedChange", "strengthChange", "damageIncrementMultiplier", "pierceIncrementMultiplier", "extraModSlots", "abilityGoldPerPick", "arrowPierceIncrementMultiplier", "effects": ["text"],
+                    optional "perGoldBonus": { "gold", "pierce", "baseDamage" }, "speedChangeForSpeed": { "originalSpeedAtLeast", "change" }, "baseDamageMultiplierForSpeed": { "originalSpeedAtLeast", "multiplier" },
+                    optional "armor": { "agilityChange", "strengthRequirementChange", "modCostPerLevel", "bdmgAllTypes", "noTypes": ["Light"], "effects": ["text"] },
+                    optional "shield": { "strengthChange", "effects": ["text"] } } ],
+  "races":       [ { "name", "start": { "strength": 17, "agility": 13 }, "abilities": [ { "name", "text" } ] } ]
 }
 ```
 
@@ -266,6 +271,7 @@ weapon types, armor types, shield types, mods, races, active actions, passives a
 - Mod `effects` point at a value of the level (0 is the first). Allowed keys: weaponMods `speed`, `strength`, `throwRange`;
   bowMods `strength`, `speed`, `sweetRange`, `farRange`, `strengthHarder`; armorMods `agility`, `armorMultiplier`,
   `strengthRequirement`, `sneak`, `bdmgMultiplier`; shieldMods `agility`, `armor`. A mod without effects is a text-only mod.
+- A metal is placed in the metal list by its `number`. Its `armor.noTypes` must name existing armor types and cannot exclude all of them. Without an `armor` part the metal has no armor effects.
 - A race lists only the stats that differ; the rest start at the first built-in race's values.
 - Plugins never replace anything. An entry whose name already exists (built in or from an earlier plugin) is skipped, and the
   Plugins page lists what was skipped.

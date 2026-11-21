@@ -548,6 +548,13 @@ input[type="number"] { text-align: center; font-variant-numeric: tabular-nums; }
 }
 
 
+/* ---- racial abilities ---- */
+.race-abil { margin-top: 0.6rem; }
+.race-abil-title { font-size: 0.95rem; margin: 0 0 0.3rem; }
+.race-abil dl { margin: 0; }
+.race-abil dt { font-weight: 600; margin-top: 0.4rem; }
+.race-abil dd { margin: 0.1rem 0 0; white-space: pre-wrap; }
+
 /* ---- plugin builder ---- */
 .pb-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem 1rem; }
 .pb-head .panel-title { margin-bottom: 0.4rem; }
@@ -711,7 +718,7 @@ try { var t = localStorage.getItem('unforged-theme'); if (t === 'light' || t ===
   <section id="view-plugins" hidden aria-labelledby="h-plugins">
     <div class="panel plugin-panel">
       <h2 id="h-plugins" class="panel-title">Plugins</h2>
-      <p class="note">A plugin is a file that adds custom weapon types, armor types, shield types, mods and races. Plugins are kept on this device and apply to every profile. Adding, removing or switching one reloads the page. Items saved with a plugin's type stay in your profile and work again when the plugin is on. The Plugin builder makes plugin files with forms, no file editing needed.</p>
+      <p class="note">A plugin is a file that adds custom weapon types, armor types, shield types, metals, mods and races. Plugins are kept on this device and apply to every profile. Adding, removing or switching one reloads the page. Items saved with a plugin's type stay in your profile and work again when the plugin is on. The Plugin builder makes plugin files with forms, no file editing needed.</p>
       <div class="actions">
         <button class="btn btn-primary" type="button" id="plugin-build">Plugin builder</button>
         <button class="btn file-btn" type="button" id="plugin-import">Import plugin</button>
@@ -736,7 +743,7 @@ try { var t = localStorage.getItem('unforged-theme'); if (t === 'light' || t ===
         <h2 id="h-builder" class="panel-title">Plugin builder</h2>
         <button class="btn btn-small" type="button" id="pb-back">Back to Plugins</button>
       </div>
-      <p class="note">Build a plugin with forms instead of writing the file by hand. Everything a plugin can add is here: weapon, armor and shield types, all four kinds of mods, and races.</p>
+      <p class="note">Build a plugin with forms instead of writing the file by hand. Everything a plugin can add is here: weapon, armor and shield types, custom metals, all four kinds of mods, and races with racial abilities.</p>
       <div class="actions pb-toolbar">
         <button class="btn" type="button" id="pb-new">New plugin</button>
         <button class="btn file-btn" type="button" id="pb-open">Open file</button>
@@ -937,6 +944,7 @@ try { var t = localStorage.getItem('unforged-theme'); if (t === 'light' || t ===
         <div class="field">
           <label for="sx-race">Race</label>
           <select id="sx-race"></select>
+          <div id="sx-race-abil" class="race-abil" hidden></div>
         </div>
         <div class="field">
           <label for="sx-hp">HP skill points</label>
@@ -1415,7 +1423,7 @@ const Profiles = createProfileStore(pickStorage());
 // Rules are read once when the page starts, so adding, removing or switching a plugin reloads the page.
 const PLUGIN_KEY = 'unforged-plugins-v1';
 const PLUGIN_SECTIONS = [
-  ['weaponTypes', 'weapon type'], ['armorTypes', 'armor type'], ['shieldTypes', 'shield type'],
+  ['weaponTypes', 'weapon type'], ['armorTypes', 'armor type'], ['shieldTypes', 'shield type'], ['metals', 'metal'],
   ['weaponMods', 'weapon mod'], ['bowMods', 'bow mod'], ['armorMods', 'armor mod'], ['shieldMods', 'shield mod'],
   ['races', 'race'], ['actions', 'active action'], ['passives', 'passive'], ['styles', 'purchasable style'],
 ];
@@ -1510,6 +1518,54 @@ function cleanPlugin(obj, baseStart) {
       strengthBase: num(x.strengthBase, `${where}: strengthBase`, 0, 100), agilityDivisor: ad,
     };
   }
+  // A custom metal touches the weapon, bow, arrow, armor and shield crafters. Only plain numbers and text are accepted.
+  const textList = (v, where, maxN, maxLen) => {
+    if (v === undefined || v === null) return [];
+    if (!Array.isArray(v) || v.length > maxN) { bad(`${where}: must be a list of at most ${maxN} texts`); return []; }
+    return v.map((t, i) => str(t, `${where} ${i + 1}`, maxLen, false)).filter((t) => t !== null);
+  };
+  const subObj = (v, where) => {
+    if (v === undefined || v === null) return null;
+    if (typeof v !== 'object' || Array.isArray(v)) { bad(`${where}: must be an object`); return null; }
+    return v;
+  };
+  function metal(x, where) {
+    const out = {
+      number: num(x.number, `${where}: number`, 1, 1000), buyPrice: num(x.buyPrice, `${where}: buyPrice`, 0.01, 1000000), sellPrice: num(x.sellPrice, `${where}: sellPrice`, 0, 1000000),
+      modCostPerLevel: num(x.modCostPerLevel, `${where}: modCostPerLevel`, 0, 1000), modStrengthMultiplier: num(x.modStrengthMultiplier, `${where}: modStrengthMultiplier`, 0, 10),
+      speedChange: num(x.speedChange, `${where}: speedChange`, -20, 20, true), strengthChange: num(x.strengthChange, `${where}: strengthChange`, -50, 50),
+      damageIncrementMultiplier: num(x.damageIncrementMultiplier, `${where}: damageIncrementMultiplier`, 0, 10), pierceIncrementMultiplier: num(x.pierceIncrementMultiplier, `${where}: pierceIncrementMultiplier`, 0, 10),
+      extraModSlots: num(x.extraModSlots, `${where}: extraModSlots`, 0, 10, true), abilityGoldPerPick: num(x.abilityGoldPerPick, `${where}: abilityGoldPerPick`, 1, 10000000, true),
+      arrowPierceIncrementMultiplier: num(x.arrowPierceIncrementMultiplier, `${where}: arrowPierceIncrementMultiplier`, 0, 10),
+      effects: textList(x.effects, `${where}: effect`, 20, 300),
+    };
+    const pg = subObj(x.perGoldBonus, `${where}: perGoldBonus`);
+    if (pg) out.perGoldBonus = { gold: num(pg.gold, `${where}: perGoldBonus.gold`, 1, 10000000), pierce: num(pg.pierce, `${where}: perGoldBonus.pierce`, 0, 1000), baseDamage: num(pg.baseDamage, `${where}: perGoldBonus.baseDamage`, 0, 1000) };
+    const sp = subObj(x.speedChangeForSpeed, `${where}: speedChangeForSpeed`);
+    if (sp) out.speedChangeForSpeed = { originalSpeedAtLeast: num(sp.originalSpeedAtLeast, `${where}: speedChangeForSpeed.originalSpeedAtLeast`, 0, 20, true), change: num(sp.change, `${where}: speedChangeForSpeed.change`, -20, 20, true) };
+    const bd = subObj(x.baseDamageMultiplierForSpeed, `${where}: baseDamageMultiplierForSpeed`);
+    if (bd) out.baseDamageMultiplierForSpeed = { originalSpeedAtLeast: num(bd.originalSpeedAtLeast, `${where}: baseDamageMultiplierForSpeed.originalSpeedAtLeast`, 0, 20, true), multiplier: num(bd.multiplier, `${where}: baseDamageMultiplierForSpeed.multiplier`, 0.01, 10) };
+    const ar = subObj(x.armor, `${where}: armor`);
+    if (ar) {
+      const a = { effects: textList(ar.effects, `${where}: armor effect`, 20, 300) };
+      if (ar.agilityChange !== undefined) a.agilityChange = num(ar.agilityChange, `${where}: armor.agilityChange`, -20, 20);
+      if (ar.strengthRequirementChange !== undefined) a.strengthRequirementChange = num(ar.strengthRequirementChange, `${where}: armor.strengthRequirementChange`, -50, 50);
+      if (ar.modCostPerLevel !== undefined) a.modCostPerLevel = num(ar.modCostPerLevel, `${where}: armor.modCostPerLevel`, 0, 1000);
+      if (ar.bdmgAllTypes !== undefined) { if (typeof ar.bdmgAllTypes !== 'boolean') bad(`${where}: armor.bdmgAllTypes must be true or false`); a.bdmgAllTypes = ar.bdmgAllTypes === true; }
+      if (ar.noTypes !== undefined) {
+        if (!Array.isArray(ar.noTypes) || ar.noTypes.length > 50 || ar.noTypes.some((n) => typeof n !== 'string')) bad(`${where}: armor.noTypes must be a list of armor type names`);
+        else a.noTypes = ar.noTypes.map((n) => n.trim());
+      }
+      out.armor = a;
+    }
+    const sh = subObj(x.shield, `${where}: shield`);
+    if (sh) {
+      const s2 = { effects: textList(sh.effects, `${where}: shield effect`, 20, 300) };
+      if (sh.strengthChange !== undefined) s2.strengthChange = num(sh.strengthChange, `${where}: shield.strengthChange`, -50, 50);
+      out.shield = s2;
+    }
+    return out;
+  }
   // refKey: the field that limits a mod to certain types (armor: types, bow: weapons, shield: shields).
   const mod = (key, refKey) => (x, where) => {
     const levels = [];
@@ -1560,7 +1616,18 @@ function cleanPlugin(obj, baseStart) {
         if (n !== null) start[k] = n;
       }
     }
-    return { start };
+    const out = { start };
+    if (x.abilities !== undefined) {
+      if (!Array.isArray(x.abilities) || x.abilities.length > 20) bad(`${where}: abilities must be a list of at most 20 entries`);
+      else {
+        const abilities = x.abilities.map((a, i) => {
+          if (!a || typeof a !== 'object' || Array.isArray(a)) { bad(`${where}: ability ${i + 1} must be an object with a name and text`); return null; }
+          return { name: str(a.name, `${where}: ability ${i + 1} name`, 60, true), text: str(a.text, `${where}: ability ${i + 1} text`, 1000, false) };
+        });
+        if (abilities.length) out.abilities = abilities;
+      }
+    }
+    return out;
   }
   // Stats entries use the same structures as the built-in rules. Race restrictions are optional.
   // The importer normalizes every field before any plugin data reaches the live rules.
@@ -1605,6 +1672,7 @@ function cleanPlugin(obj, baseStart) {
     weaponTypes: each('weaponTypes', 'Weapon type', weapon),
     armorTypes: each('armorTypes', 'Armor type', armorType),
     shieldTypes: each('shieldTypes', 'Shield type', shieldType),
+    metals: each('metals', 'Metal', metal),
     weaponMods: each('weaponMods', 'Weapon mod', mod('weaponMods', null)),
     bowMods: each('bowMods', 'Bow mod', mod('bowMods', 'weapons')),
     armorMods: each('armorMods', 'Armor mod', mod('armorMods', 'types')),
@@ -1651,6 +1719,23 @@ function applyPlugins(smithyBase, statsBase, plugins) {
     put('weaponTypes', smithy.weapons, 'Weapon type');
     put('armorTypes', smithy.armor.types, 'Armor type');
     put('shieldTypes', smithy.shield.types, 'Shield type');
+    for (const item of pl.metals) {
+      if (taken(smithy.metals, item.name)) { skipped.push(`Metal ${item.name}: the name is already used`); continue; }
+      const typeNames = smithy.armor.types.map((t) => t.name);
+      const noTypes = (item.armor && item.armor.noTypes) || [];
+      const unknown = noTypes.filter((n) => !typeNames.includes(n));
+      if (unknown.length) { skipped.push(`Metal ${item.name}: ${unknown.join(', ')} is not an available armor type`); continue; }
+      if (typeNames.length && typeNames.every((n) => noTypes.includes(n))) { skipped.push(`Metal ${item.name}: it cannot exclude every armor type`); continue; }
+      const { armor, shield, ...m } = clone(item);
+      if (!m.effects) m.effects = [];
+      let at = smithy.metals.findIndex((x) => x.number > m.number);
+      if (at < 0) at = smithy.metals.length;
+      smithy.metals.splice(Math.max(at, 1), 0, m);
+      smithy.armor.metals[m.name] = { effects: [], ...(armor || {}) };
+      if (shield && shield.effects && shield.effects.length) smithy.shield.metalEffects[m.name] = shield.effects;
+      if (shield && shield.strengthChange) smithy.shield.metalStrengthChange[m.name] = shield.strengthChange;
+      added.metals = (added.metals || 0) + 1;
+    }
     put('weaponMods', smithy.mods, 'Weapon mod');
     put('bowMods', smithy.bowMods, 'Bow mod', 'weapons', () => smithy.bows.map((b) => b.name));
     put('armorMods', smithy.armorMods, 'Armor mod', 'types', () => smithy.armor.types.map((t) => t.name));
@@ -1727,6 +1812,8 @@ function examplePlugin() {
       'Mods: each level has text with {0} {1} ... placeholders that are filled from values. kind "pct" shows percentages, "int" whole numbers.',
       'Mod effects tell the calculator which value to use: weaponMods speed (subtracted from speed), strength (eases the strength requirement), throwRange; bowMods strength, speed, sweetRange, farRange, strengthHarder; armorMods agility, armorMultiplier, strengthRequirement, sneak, bdmgMultiplier; shieldMods agility, armor. The number is the position of the value, 0 for the first. A mod with no effects is a text-only mod.',
       'armorMods can add "types": ["Light"] to limit them to some armor types, bowMods "weapons": ["Crossbow"], shieldMods "shields": ["Kite"].',
+      'metals: number drives weapon damage, the two prices are per ingot, the multipliers scale upgrades and mods. Optional armor and shield parts add armor and shield rules for the metal; optional perGoldBonus, speedChangeForSpeed and baseDamageMultiplierForSpeed add special weapon rules.',
+      'races: abilities is an optional list of { name, text } racial abilities shown on the Stats page and character sheet.',
       'races: start lists the starting stats. A stat you leave out starts at the first built-in race value. Stats: strength, melee, agility, combatSkill, ranged, mana, toughness, charisma, sneak, intelligence.',
     ],
     weaponTypes: [{
@@ -1740,6 +1827,13 @@ function examplePlugin() {
     }],
     armorTypes: [{ name: 'Example Scale', armorMultiplier: 0.9, nerfMultiplier: 0.75, strengthChange: 1, heavyBdmg: false }],
     shieldTypes: [{ name: 'Example Heater', baseHp: 18, hpMetalDivisor: 4, weight: 2, incrementMultiplier: 1, strengthBase: 12, agilityDivisor: 25 }],
+    metals: [{
+      name: 'Example Ore', number: 52, buyPrice: 200, sellPrice: 120, modCostPerLevel: 6, modStrengthMultiplier: 1.1, speedChange: -1, strengthChange: 0,
+      damageIncrementMultiplier: 1.1, pierceIncrementMultiplier: 1, extraModSlots: 0, abilityGoldPerPick: 12000, arrowPierceIncrementMultiplier: 1,
+      effects: ['Example effect: weapons are 1 speed faster.', 'Example effect: weapon mods cost 6 ingots per level.'],
+      armor: { agilityChange: 1, strengthRequirementChange: 1, effects: ['Example effect: +1 agility nerf.'] },
+      shield: { strengthChange: 1, effects: ['Example effect: shield strength requirement is 1 easier.'] },
+    }],
     weaponMods: [{
       name: 'Example Haste', effects: { speed: 0 },
       levels: [{ level: 8, text: 'Decreases weapon speed by {0}', values: [{ value: 1, kind: 'int' }] }, { level: 16, text: 'Decreases weapon speed by {0}', values: [{ value: 2, kind: 'int' }] }],
@@ -1756,7 +1850,10 @@ function examplePlugin() {
       name: 'Example Rim', effects: { armor: 0 },
       levels: [{ level: 5, text: 'Armor % is {0} points higher', values: [{ value: 5, kind: 'int' }] }],
     }],
-    races: [{ name: 'Example Race', start: { strength: 17, agility: 13, charisma: 12 } }],
+    races: [{
+      name: 'Example Race', start: { strength: 17, agility: 13, charisma: 12 },
+      abilities: [{ name: 'Example Gift', text: 'Describe what this racial ability does.' }],
+    }],
   };
 }
 
@@ -5166,6 +5263,7 @@ function startSheet(rules, tools) {
           <div class="field"><label for="cs-name">Name</label><input id="cs-name" type="text" data-text="name" maxlength="60" value="${esc(sheet.name)}"></div>
           <div class="field"><span class="label-like">Race</span><p class="sheet-race">${esc(state.race)}</p></div>
         </div>
+        ${(() => { const rd = rules.races.find((r) => r.name === state.race); const ab = rd && Array.isArray(rd.abilities) ? rd.abilities : []; return ab.length ? `<div class="race-abil"><h3 class="race-abil-title">Racial abilities</h3><dl>${ab.map((a) => `<dt>${esc(a.name)}</dt><dd>${esc(a.text)}</dd>`).join('')}</dl></div>` : ''; })()}
       </section>
       ${vitalsHtml(max)}
       ${statusHtml(max)}
@@ -5758,6 +5856,10 @@ function startStats(rules, tools) {
 
   function syncInputs() {
     $('sx-race').value = state.race;
+    const raceDef = rules.races.find((r) => r.name === state.race);
+    const racial = raceDef && Array.isArray(raceDef.abilities) ? raceDef.abilities : [];
+    $('sx-race-abil').hidden = !racial.length;
+    $('sx-race-abil').innerHTML = racial.length ? `<h3 class="race-abil-title">Racial abilities</h3><dl>${racial.map((a) => `<dt>${esc(a.name)}</dt><dd>${esc(a.text)}</dd>`).join('')}</dl>` : '';
     $('sx-hp').value = state.hpPoints;
     for (const s of rules.stats) $(`sx-st-${s.key}`).value = state.stats[s.key];
     $('sx-xy-from').value = xy.from;
@@ -5947,6 +6049,14 @@ function createPluginBuilder(ctx) {
       title: 'Shield types', label: 'Shield type', one: 'shield type', builtin: () => baseSmithy.shield.types,
       help: 'A new shield for the Shields crafter. Turn on "No agility nerf" for a shield that never slows the wearer.',
     },
+    metals: {
+      title: 'Metals', label: 'Metal', one: 'metal',
+      builtin: () => baseSmithy.metals.map((m) => ({
+        ...m, armor: baseSmithy.armor.metals[m.name] || {},
+        shield: { strengthChange: baseSmithy.shield.metalStrengthChange[m.name] || 0, effects: baseSmithy.shield.metalEffects[m.name] || [] },
+      })),
+      help: 'A new metal for every crafter. The number sets base damage, prices are per ingot, and the multipliers scale upgrades and mods. Armor and shield rules for the metal are optional. The effect lists are text shown to the player; the numbers do the calculating.',
+    },
     weaponMods: {
       title: 'Weapon mods', label: 'Weapon mod', one: 'weapon mod', builtin: () => baseSmithy.mods,
       help: 'A mod for melee weapons and arrows. Each level has a text; {0}, {1}… are filled from the level\'s values.',
@@ -5965,7 +6075,7 @@ function createPluginBuilder(ctx) {
     },
     races: {
       title: 'Races', label: 'Race', one: 'race', builtin: () => baseStats.races,
-      help: 'Tick only the stats that differ. Stats you leave out start at the first built-in race\'s value.',
+      help: 'Tick only the stats that differ. Stats you leave out start at the first built-in race\'s value. Racial abilities are shown on the Stats page and the character sheet.',
     },
     actions: {
       title: 'Active actions', label: 'Active action', one: 'active action', builtin: () => baseStats.actions || [],
@@ -5994,7 +6104,14 @@ function createPluginBuilder(ctx) {
     weaponTypes: () => ({ speed: '3', baseDamage: '1.5', basePierce: '40', strengthBase: '15', damageType: 'PRC', hands: '1', abilities: blankAbilities() }),
     armorTypes: () => ({ armorMultiplier: '1', nerfMultiplier: '1', strengthChange: '0', heavyBdmg: false }),
     shieldTypes: () => ({ baseHp: '20', hpMetalDivisor: '5', weight: '2', incrementMultiplier: '1', strengthBase: '12', agilityDivisor: '20' }),
-    races: () => ({ start: {} }),
+    metals: () => ({
+      number: '50', buyPrice: '100', sellPrice: '60', modCostPerLevel: '7', modStrengthMultiplier: '1', speedChange: '0', strengthChange: '0',
+      damageIncrementMultiplier: '1', pierceIncrementMultiplier: '1', extraModSlots: '0', abilityGoldPerPick: '15000', arrowPierceIncrementMultiplier: '1',
+      effectsText: '', pg: { on: false, gold: '5000', pierce: '5', baseDamage: '0.5' }, sp: { on: false, atLeast: '6', change: '-2' }, bd: { on: false, atLeast: '7', multiplier: '1.2' },
+      armor: { on: false, agilityChange: '0', strengthRequirementChange: '0', modCostPerLevel: '', bdmgAllTypes: false, noTypes: [], effectsText: '' },
+      shield: { on: false, strengthChange: '0', effectsText: '' },
+    }),
+    races: () => ({ start: {}, abilities: [] }),
     actions: () => ({ definition: JSON.stringify({ roll: 'Melee roll', speed: '3 speed', text: '', costs: [5], races: [] }, null, 2) }),
     passives: () => ({ definition: JSON.stringify({ text: '', maxLevel: 1, cost: { base: 3, perLevel: 0 }, races: [] }, null, 2) }),
     styles: () => ({ definition: JSON.stringify({ text: '', costs: [10], rules: [], groups: [], races: [] }, null, 2) }),
@@ -6025,7 +6142,20 @@ function createPluginBuilder(ctx) {
     } else if (['actions', 'passives', 'styles'].includes(section)) {
       const copy = { ...x }; delete copy.name; delete copy.key;
       e.definition = JSON.stringify(copy, null, 2);
+    } else if (section === 'metals') {
+      const lines = (v) => (Array.isArray(v) ? v.filter((t) => typeof t === 'string').join('\n') : '');
+      const o = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : null);
+      const pg = o(x.perGoldBonus), sp = o(x.speedChangeForSpeed), bd = o(x.baseDamageMultiplierForSpeed), ar = o(x.armor), sh = o(x.shield);
+      Object.assign(e, BLANK.metals());
+      for (const k of ['number', 'buyPrice', 'sellPrice', 'modCostPerLevel', 'modStrengthMultiplier', 'speedChange', 'strengthChange', 'damageIncrementMultiplier', 'pierceIncrementMultiplier', 'extraModSlots', 'abilityGoldPerPick', 'arrowPierceIncrementMultiplier']) e[k] = S(x[k]);
+      e.effectsText = lines(x.effects);
+      if (pg) e.pg = { on: true, gold: S(pg.gold), pierce: S(pg.pierce), baseDamage: S(pg.baseDamage) };
+      if (sp) e.sp = { on: true, atLeast: S(sp.originalSpeedAtLeast), change: S(sp.change) };
+      if (bd) e.bd = { on: true, atLeast: S(bd.originalSpeedAtLeast), multiplier: S(bd.multiplier) };
+      if (ar) e.armor = { on: true, agilityChange: S(ar.agilityChange === undefined ? 0 : ar.agilityChange), strengthRequirementChange: S(ar.strengthRequirementChange === undefined ? 0 : ar.strengthRequirementChange), modCostPerLevel: S(ar.modCostPerLevel), bdmgAllTypes: ar.bdmgAllTypes === true, noTypes: Array.isArray(ar.noTypes) ? ar.noTypes.filter((n) => typeof n === 'string') : [], effectsText: lines(ar.effects) };
+      if (sh) e.shield = { on: true, strengthChange: S(sh.strengthChange === undefined ? 0 : sh.strengthChange), effectsText: lines(sh.effects) };
     } else if (section === 'races') {
+      e.abilities = (Array.isArray(x.abilities) ? x.abilities : []).slice(0, 20).map((a) => ({ name: S(a && a.name).slice(0, 60), text: S(a && a.text).slice(0, 1000) }));
       e.start = {};
       if (x.start && typeof x.start === 'object') for (const s of statList) if (x.start[s.key] !== undefined && !(dropDefaults && String(x.start[s.key]) === String(baseStart[s.key]))) e.start[s.key] = S(x.start[s.key]);
     } else {
@@ -6041,6 +6171,27 @@ function createPluginBuilder(ctx) {
       if (x.effects && typeof x.effects === 'object') for (const k of PLUGIN_MOD_EFFECTS[section]) if (x.effects[k] !== undefined) e.effects[k] = S(x.effects[k]);
       e.stackable = section === 'armorMods' && x.stackable === true;
       e.refs = refKey && Array.isArray(x[refKey]) ? x[refKey].filter((n) => typeof n === 'string') : [];
+    }
+    return e;
+  }
+
+  // A saved draft of a metal is already in the form's own shape (not the file's), so it is copied over a blank metal.
+  function restoreMetal(x) {
+    x = x && typeof x === 'object' ? x : {};
+    const e = { _id: newId(), name: S(x.name).slice(0, 40), ...BLANK.metals() };
+    for (const k of Object.keys(e)) {
+      if (k === '_id' || k === 'name' || x[k] === undefined || x[k] === null) continue;
+      if (Array.isArray(e[k])) { if (Array.isArray(x[k])) e[k] = x[k].filter((v) => typeof v === 'string'); }
+      else if (typeof e[k] === 'object') {
+        if (typeof x[k] === 'object' && !Array.isArray(x[k])) {
+          for (const kk of Object.keys(e[k])) {
+            const v = x[k][kk];
+            if (v === undefined || v === null) continue;
+            if (Array.isArray(e[k][kk])) e[k][kk] = Array.isArray(v) ? v.filter((t) => typeof t === 'string') : [];
+            else e[k][kk] = typeof e[k][kk] === 'boolean' ? v === true : S(v);
+          }
+        }
+      } else e[k] = S(x[k]);
     }
     return e;
   }
@@ -6064,7 +6215,7 @@ function createPluginBuilder(ctx) {
       if (raw && raw.data) {
         const st = emptyState();
         st.name = S(raw.name); st.version = S(raw.version); st.description = S(raw.description);
-        for (const k of SECTION_KEYS) if (Array.isArray(raw.data[k])) st.data[k] = raw.data[k].map((x) => readEntry(k, META[k].ref && x ? { ...x, [META[k].ref]: x.refs } : x));
+        for (const k of SECTION_KEYS) if (Array.isArray(raw.data[k])) st.data[k] = raw.data[k].map((x) => (k === 'metals' ? restoreMetal(x) : readEntry(k, META[k].ref && x ? { ...x, [META[k].ref]: x.refs } : x)));
         return st;
       }
     } catch (e) { /* no draft */ }
@@ -6110,10 +6261,32 @@ function createPluginBuilder(ctx) {
       let definition = {};
       try { definition = JSON.parse(e.definition || '{}'); } catch (err) { definition = {}; }
       Object.assign(o, definition);
+    } else if (section === 'metals') {
+      for (const k of ['number', 'buyPrice', 'sellPrice', 'modCostPerLevel', 'modStrengthMultiplier', 'speedChange', 'strengthChange', 'damageIncrementMultiplier', 'pierceIncrementMultiplier', 'extraModSlots', 'abilityGoldPerPick', 'arrowPierceIncrementMultiplier']) o[k] = N(e[k]);
+      const lines = (t) => String(t || '').split('\n').map((l) => l.trim()).filter(Boolean);
+      o.effects = lines(e.effectsText);
+      if (e.pg.on) o.perGoldBonus = { gold: N(e.pg.gold), pierce: N(e.pg.pierce), baseDamage: N(e.pg.baseDamage) };
+      if (e.sp.on) o.speedChangeForSpeed = { originalSpeedAtLeast: N(e.sp.atLeast), change: N(e.sp.change) };
+      if (e.bd.on) o.baseDamageMultiplierForSpeed = { originalSpeedAtLeast: N(e.bd.atLeast), multiplier: N(e.bd.multiplier) };
+      if (e.armor.on) {
+        const a = { effects: lines(e.armor.effectsText) };
+        if (e.armor.agilityChange !== '') a.agilityChange = N(e.armor.agilityChange);
+        if (e.armor.strengthRequirementChange !== '') a.strengthRequirementChange = N(e.armor.strengthRequirementChange);
+        if (e.armor.modCostPerLevel !== '') a.modCostPerLevel = N(e.armor.modCostPerLevel);
+        if (e.armor.bdmgAllTypes) a.bdmgAllTypes = true;
+        if (e.armor.noTypes.length) a.noTypes = e.armor.noTypes.slice();
+        o.armor = a;
+      }
+      if (e.shield.on) {
+        const sh = { effects: lines(e.shield.effectsText) };
+        if (e.shield.strengthChange !== '') sh.strengthChange = N(e.shield.strengthChange);
+        o.shield = sh;
+      }
     } else if (section === 'races') {
       const start = {};
       for (const s of statList) if (e.start[s.key] !== undefined) start[s.key] = N(e.start[s.key]);
       if (Object.keys(start).length) o.start = start;
+      if (e.abilities && e.abilities.length) o.abilities = e.abilities.map((a) => ({ name: a.name, text: a.text }));
     } else {
       if (section === 'armorMods' && e.stackable) o.stackable = true;
       const refKey = META[section].ref;
@@ -6235,7 +6408,59 @@ function createPluginBuilder(ctx) {
         <input type="number" inputmode="numeric" step="1" data-f="start.${s.key}" value="${esc(on ? e.start[s.key] : baseStart[s.key])}" aria-label="${esc(s.name)} start"${on ? '' : ' disabled'}>
         ${hint(on ? '-1000 to 24' : `Default ${baseStart[s.key]}`)}
       </div>`;
-    }).join('')}</div>`;
+    }).join('')}</div>
+    <h4 class="pb-sub">Racial abilities</h4>
+    <p class="note">Optional. Each one has a name and a description, and is shown for characters of this race on the Stats page and the character sheet.</p>
+    ${(e.abilities || []).map((a, ai) => `<fieldset class="pb-abil"><legend>Ability ${ai + 1}</legend>
+      ${txt(`abilities.${ai}.name`, 'Name', a.name, 60)}
+      <label class="pb-f"><span>Description</span><textarea rows="3" maxlength="1000" data-f="abilities.${ai}.text" spellcheck="true">${esc(a.text)}</textarea></label>
+      <div class="actions"><button class="btn btn-small btn-remove" type="button" data-act="delAbility" data-ai="${ai}">Remove ability</button></div>
+    </fieldset>`).join('')}
+    <div class="actions"><button class="btn btn-small" type="button" data-act="addAbility"${(e.abilities || []).length >= 20 ? ' disabled' : ''}>Add racial ability</button></div>`;
+  }
+  function metalBody(e) {
+    const own = state.data.armorTypes.map((t) => norm(t.name)).filter(Boolean);
+    const typeNames = [...baseSmithy.armor.types.map((t) => t.name), ...own];
+    const extraTypes = e.armor.noTypes.filter((n) => !typeNames.map((x) => x.toLowerCase()).includes(n.toLowerCase()));
+    const area = (f, label, v, h) => `<label class="pb-f"><span>${label}</span><textarea rows="3" spellcheck="true" data-f="${f}">${esc(v)}</textarea>${hint(h)}</label>`;
+    return `<div class="pb-grid">
+      ${num('number', 'Metal number', e.number, '1 to 1000. Sets base damage and upgrade curves; also orders the list.')}
+      ${num('buyPrice', 'Buy price per ingot', e.buyPrice, 'Above 0')}
+      ${num('sellPrice', 'Sell price per ingot', e.sellPrice, '0 or more')}
+      ${num('modCostPerLevel', 'Weapon mod cost per level (ingots)', e.modCostPerLevel, '0 to 1000')}
+      ${num('modStrengthMultiplier', 'Mod strength multiplier', e.modStrengthMultiplier, '0 to 10. 1 is normal.')}
+      ${num('speedChange', 'Speed change', e.speedChange, 'Whole number. Negative is faster, positive is heavier.')}
+      ${num('strengthChange', 'Strength requirement change', e.strengthChange, '-50 to 50. Positive is harder.')}
+      ${num('damageIncrementMultiplier', 'Damage upgrade multiplier', e.damageIncrementMultiplier, '0 to 10')}
+      ${num('pierceIncrementMultiplier', 'Pierce upgrade multiplier', e.pierceIncrementMultiplier, '0 to 10')}
+      ${num('arrowPierceIncrementMultiplier', 'Arrow pierce upgrade multiplier', e.arrowPierceIncrementMultiplier, '0 to 10')}
+      ${num('extraModSlots', 'Extra weapon mod slots', e.extraModSlots, 'Whole number, 0 to 10')}
+      ${num('abilityGoldPerPick', 'Gold per ability pick', e.abilityGoldPerPick, 'Whole number. 15000 is the usual.')}
+    </div>
+    ${area('effectsText', 'Effects text (one per line)', e.effectsText, 'Shown on the weapon, bow and arrow screens. Up to 20 lines.')}
+    <h4 class="pb-sub">Special weapon rules</h4>
+    ${check1('pg.on', 'Bonus for every set amount of gold spent (like Iron)', e.pg.on)}
+    ${e.pg.on ? `<div class="pb-grid">${num('pg.gold', 'Every … gold', e.pg.gold, 'Above 0')}${num('pg.pierce', 'Adds pierce %', e.pg.pierce)}${num('pg.baseDamage', 'Adds base damage', e.pg.baseDamage)}</div>` : ''}
+    ${check1('sp.on', 'Extra speed change for fast or slow weapons (like Mithril)', e.sp.on)}
+    ${e.sp.on ? `<div class="pb-grid">${num('sp.atLeast', 'Original speed at least', e.sp.atLeast, 'Whole, 0 to 20')}${num('sp.change', 'Speed change', e.sp.change, 'Whole, -20 to 20')}</div>` : ''}
+    ${check1('bd.on', 'Base damage multiplier for slow weapons (like Tungsten)', e.bd.on)}
+    ${e.bd.on ? `<div class="pb-grid">${num('bd.atLeast', 'Original speed at least', e.bd.atLeast, 'Whole, 0 to 20')}${num('bd.multiplier', 'Base damage multiplier', e.bd.multiplier, '0.01 to 10')}</div>` : ''}
+    <h4 class="pb-sub">Armor</h4>
+    ${check1('armor.on', 'This metal has its own armor rules', e.armor.on)}
+    ${e.armor.on ? `<div class="pb-grid">
+      ${num('armor.agilityChange', 'Agility nerf change', e.armor.agilityChange, '-20 to 20. Positive adds nerf.')}
+      ${num('armor.strengthRequirementChange', 'Strength requirement change', e.armor.strengthRequirementChange, '-50 to 50. Positive is easier (like Silver).')}
+      ${num('armor.modCostPerLevel', 'Armor mod cost per level', e.armor.modCostPerLevel, 'Leave empty for the normal cost')}
+    </div>
+    ${check1('armor.bdmgAllTypes', 'Base damage reduction on every armor type (like Cobalt)', e.armor.bdmgAllTypes)}
+    <fieldset class="pb-refs"><legend>Armor types this metal cannot make (leave one at least)</legend>
+      ${[...typeNames, ...extraTypes].map((n) => `<label class="pb-chip${extraTypes.includes(n) ? ' pb-chip-bad' : ''}"><input type="checkbox" data-notype="${esc(n)}"${e.armor.noTypes.includes(n) ? ' checked' : ''}> <span>${esc(n)}</span></label>`).join('')}
+    </fieldset>
+    ${area('armor.effectsText', 'Armor effects text (one per line)', e.armor.effectsText)}` : ''}
+    <h4 class="pb-sub">Shield</h4>
+    ${check1('shield.on', 'This metal has its own shield rules', e.shield.on)}
+    ${e.shield.on ? `<div class="pb-grid">${num('shield.strengthChange', 'Strength requirement change', e.shield.strengthChange, '-50 to 50. Positive is easier (like Silver).')}</div>
+    ${area('shield.effectsText', 'Shield effects text (one per line)', e.shield.effectsText)}` : ''}`;
   }
   function modBody(section, e) {
     const m = META[section];
@@ -6285,6 +6510,7 @@ function createPluginBuilder(ctx) {
     if (section === 'armorTypes') return armorBody(e);
     if (section === 'shieldTypes') return shieldBody(e);
     if (section === 'races') return raceBody(e);
+    if (section === 'metals') return metalBody(e);
     if (['actions', 'passives', 'styles'].includes(section)) return `<label class="pb-f"><span>Rule definition (JSON)</span><textarea rows="12" spellcheck="false" data-f="definition">${esc(e.definition || '{}')}</textarea>${hint('Edit the fields as JSON. The example shows the required structure; the races list may be omitted to make this available to everyone.')}</label>`;
     return modBody(section, e);
   }
@@ -6475,6 +6701,14 @@ function createPluginBuilder(ctx) {
       changed();
       return;
     }
+    if (el.dataset && el.dataset.notype !== undefined) {
+      const c = entryOf(el);
+      const n = el.dataset.notype;
+      c.e.armor.noTypes = c.e.armor.noTypes.filter((x) => x !== n);
+      if (el.checked) c.e.armor.noTypes.push(n);
+      changed();
+      return;
+    }
     if (el.dataset && el.dataset.ref !== undefined) {
       const c = entryOf(el);
       const n = el.dataset.ref;
@@ -6502,6 +6736,8 @@ function createPluginBuilder(ctx) {
       const k = f.slice(8);
       if (val === '') delete c.e.effects[k]; else c.e.effects[k] = val;
     } else setPath(c.e, f, val);
+    // switching a group on or off shows or hides its fields
+    if (f.endsWith('.on')) { check(); renderBody(); saveDraftSoon(); return; }
     // a changed name or type list can change the choices other mods offer
     if (f === 'name' && (c.section === 'armorTypes' || c.section === 'shieldTypes')) { /* choices update when those tabs are opened */ }
     changed();
@@ -6586,7 +6822,9 @@ function createPluginBuilder(ctx) {
       const last = e.levels[e.levels.length - 1];
       const lvl = last ? { level: String((Number(last.level) || 0) + 1), text: last.text, values: last.values.map((v) => ({ ...v })) } : { level: '1', text: '', values: [{ value: '1', kind: 'int' }] };
       e.levels.push(lvl);
-    } else if (act === 'delLevel') { e.levels.splice(li, 1); }
+    } else if (act === 'addAbility') { if ((e.abilities = e.abilities || []).length < 20) e.abilities.push({ name: '', text: '' }); }
+    else if (act === 'delAbility') { e.abilities.splice(Number(b.dataset.ai), 1); }
+    else if (act === 'delLevel') { e.levels.splice(li, 1); }
     else if (act === 'addValue') { if (e.levels[li].values.length < 4) e.levels[li].values.push({ value: '1', kind: 'int' }); }
     else if (act === 'delValue') { e.levels[li].values.splice(vi, 1); }
     else if (act === 'insert') {
